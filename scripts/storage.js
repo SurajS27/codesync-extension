@@ -84,7 +84,7 @@ export const StorageClient = {
   getApiBaseUrl() {
     return new Promise((resolve) => {
       chrome.storage.local.get(["apiBaseUrl"], (result) => {
-        resolve(result.apiBaseUrl || "http://localhost:8000/api/v1");
+        resolve(result.apiBaseUrl || "https://codesync-pvwh.onrender.com/api/v1");
       });
     });
   },
