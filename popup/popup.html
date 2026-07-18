@@ -1,0 +1,236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeSync</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="card">
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span class="logo-text">CodeSync</span>
+      </div>
+      <span class="version">v0.10.0</span>
+    </header>
+
+    <main class="content">
+      <div id="offline-banner" class="offline-banner hidden">
+        <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="16" height="16">
+          <line x1="1" y1="1" x2="23" y2="23"></line>
+          <path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"></path>
+          <path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"></path>
+          <path d="M10.71 5.05A16 16 0 0 1 22.58 9"></path>
+          <path d="M1.42 9a15.91 15.91 0 0 1 4.7-2.88"></path>
+          <path d="M8.53 16.11a6 6 0 0 1 6.95 0"></path>
+          <line x1="12" y1="20" x2="12.01" y2="20"></line>
+        </svg>
+        <span>No internet connection</span>
+      </div>
+
+      <!-- Unauthenticated State -->
+      <section id="unauth-section" class="section hidden">
+        <div class="hero">
+          <h1>Sync solved problems instantly.</h1>
+          <p>Authenticate with CodeSync to begin syncing solutions.</p>
+        </div>
+        
+        <button id="login-btn" class="btn btn-primary">
+          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+          </svg>
+          Login with GitHub
+        </button>
+
+        <!-- Developer Mode Section (Toggleable) -->
+        <div id="dev-section" class="dev-container hidden">
+          <div class="divider">
+            <span>OR DEVELOPMENT JWT</span>
+          </div>
+          <div class="form-group">
+            <label for="jwt-input" class="label-muted">Access Token (JWT)</label>
+            <input type="password" id="jwt-input" class="form-control" placeholder="eyJhbGciOiJIUzI1NiIsIn...">
+          </div>
+          <button id="save-jwt-btn" class="btn btn-secondary">Save Dev Token</button>
+        </div>
+      </section>
+
+      <!-- Authenticated State -->
+      <section id="auth-section" class="section hidden">
+        <div class="profile-card">
+          <img id="user-avatar" class="avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%236366f1'><circle cx='50' cy='50' r='50'/></svg>" alt="Profile Picture">
+          <div class="profile-info">
+            <h2 id="user-name">User Account</h2>
+            <p id="user-email">user@codesync.dev</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="repo-select">Target Repository</label>
+          <div class="select-wrapper">
+            <select id="repo-select" class="form-control select-control">
+              <option value="" disabled selected>Select a repository...</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Active Problem Detection Card -->
+        <div id="problem-card" class="problem-container">
+          <label id="problem-header-label">Current Problem</label>
+          <div class="problem-details-box">
+            <div class="problem-title-row">
+              <span id="problem-title" class="problem-title-text">No LeetCode problem detected</span>
+              <span id="problem-difficulty" class="badge-difficulty hidden">Easy</span>
+            </div>
+            <div id="sync-status-row" class="sync-status-row hidden">
+              <span class="status-indicator-dot"></span>
+              <span id="sync-status-text" class="sync-status-text">Ready for Sync</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Latest Submission Card -->
+        <div id="submission-card" class="problem-container hidden">
+          <label>Latest Submission</label>
+          <div class="problem-details-box">
+            <div class="problem-title-row">
+              <span id="submission-title" class="problem-title-text">Two Sum</span>
+              <span id="submission-difficulty" class="badge-difficulty easy">Easy</span>
+            </div>
+            
+            <div class="submission-meta-grid">
+              <div class="meta-item">
+                <span class="meta-label">Language</span>
+                <span id="submission-lang" class="meta-value">python</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Submission ID</span>
+                <span id="submission-id" class="meta-value">2044725166</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Runtime</span>
+                <span id="submission-runtime" class="meta-value">1 ms</span>
+              </div>
+              <div class="meta-item">
+                <span class="meta-label">Memory</span>
+                <span id="submission-memory" class="meta-value">8.52 MB</span>
+              </div>
+            </div>
+
+            <div class="sync-status-row">
+              <span class="status-indicator-dot"></span>
+              <span id="submission-status-text" class="sync-status-text">Accepted &bull; Ready for Sync</span>
+            </div>
+
+            <!-- Sync Button -->
+            <button id="sync-btn" class="btn btn-primary btn-sync" disabled>Ready to Sync</button>
+
+            <!-- Sync Result Area -->
+            <div id="sync-result" class="sync-result-box hidden">
+              <div class="result-divider"></div>
+              <div class="result-details">
+                <div class="result-item">
+                  <span class="result-label">Commit SHA</span>
+                  <span id="result-sha" class="result-value">N/A</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">File Path</span>
+                  <span id="result-path" class="result-value">N/A</span>
+                </div>
+                <div class="result-item">
+                  <span class="result-label">Synced At</span>
+                  <span id="result-time" class="result-value">N/A</span>
+                </div>
+              </div>
+              <a id="result-link" href="#" target="_blank" class="btn btn-secondary btn-github-link hidden">
+                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
+                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                </svg>
+                View on GitHub
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <!-- Last Sync Status Card -->
+        <div id="last-sync-box" class="problem-container">
+          <label>Last Sync Status</label>
+          <div class="problem-details-box">
+            <div class="problem-title-row">
+              <span id="last-sync-state" class="problem-title-text">No Previous Sync</span>
+            </div>
+            <div id="last-sync-details" class="hidden" style="margin-top: 8px;">
+              <div class="submission-meta-grid" style="margin-bottom: 0;">
+                <div class="meta-item">
+                  <span class="meta-label">Problem</span>
+                  <span id="last-sync-problem" class="meta-value">N/A</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Repository</span>
+                  <span id="last-sync-repo" class="meta-value">N/A</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Status</span>
+                  <span id="last-sync-badge" class="history-status-badge">N/A</span>
+                </div>
+                <div class="meta-item">
+                  <span class="meta-label">Timestamp</span>
+                  <span id="last-sync-time" class="meta-value">N/A</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pending Syncs Recovery Card -->
+        <div id="pending-syncs-card" class="problem-container hidden">
+          <label>Pending Syncs</label>
+          <div class="problem-details-box">
+            <div class="problem-title-row" style="margin-bottom: 8px;">
+              <span class="problem-title-text">Pending Syncs: <span id="pending-count">0</span></span>
+            </div>
+            <div style="display: flex; gap: 8px;">
+              <button id="retry-pending-btn" class="btn btn-primary" style="font-size: 11px; padding: 6px 10px;">Retry Pending Syncs</button>
+              <button id="clear-pending-btn" class="btn btn-danger" style="font-size: 11px; padding: 6px 10px;">Clear Pending Syncs</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sync History Panel -->
+        <div id="history-card" class="problem-container hidden">
+          <label>Recent Syncs</label>
+          <div id="history-list" class="history-list-box">
+            <div class="history-empty">No recent synchronizations</div>
+          </div>
+        </div>        <footer class="footer-actions">
+          <button id="settings-btn" class="btn btn-secondary flex-grow">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="3"></circle>
+              <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+            </svg>
+            Settings
+          </button>
+          <button id="logout-btn" class="btn btn-danger">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+              <polyline points="16 17 21 12 16 7"></polyline>
+              <line x1="21" y1="12" x2="9" y2="12"></line>
+            </svg>
+            Logout
+          </button>
+        </footer>
+      </section>
+
+      <!-- Global Status Message -->
+      <div class="status-msg hidden" id="status-msg"></div>
+    </main>
+  </div>
+
+  <script type="module" src="popup.js"></script>
+</body>
+</html>

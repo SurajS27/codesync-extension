@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CodeSync - Settings</title>
+  <link rel="stylesheet" href="options.css">
+</head>
+<body>
+  <div class="container">
+    <header class="header">
+      <div class="logo">
+        <svg class="logo-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+        <span class="logo-text">CodeSync Settings</span>
+      </div>
+      <span class="version">v0.10.0</span>
+    </header>
+
+    <main class="main-layout">
+      <!-- API configuration card -->
+      <section class="card">
+        <h2>Connection Settings</h2>
+        <p class="description">Define the target endpoint for the CodeSync Backend API. This is typically configured to your local host for testing.</p>
+        
+        <div class="form-group">
+          <label for="api-url-input">API Base URL</label>
+          <input type="text" id="api-url-input" class="form-control" placeholder="http://localhost:8000/api/v1">
+        </div>
+        
+        <button id="save-settings-btn" class="btn btn-primary">Save Connection Settings</button>
+      </section>
+
+      <!-- Repository preference (Only visible when logged in) -->
+      <section id="repo-card" class="card hidden">
+        <h2>Active Repository Workspace</h2>
+        <p class="description">Select the GitHub repository where solved challenges will be synchronized. This dropdown list is populated from your backend profile.</p>
+        
+        <div class="form-group">
+          <label for="repo-select">Target Repository</label>
+          <div class="select-wrapper">
+            <select id="repo-select" class="form-control select-control">
+              <option value="" disabled selected>Select a repository...</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <!-- Account Profile Settings (Only visible when logged in) -->
+      <section id="account-card" class="card hidden">
+        <h2>Account Profile</h2>
+        <div class="profile-wrapper">
+          <img id="user-avatar" class="avatar" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%236366f1'><circle cx='50' cy='50' r='50'/></svg>" alt="Profile Avatar">
+          <div class="profile-details">
+            <h3 id="user-name">User Account</h3>
+            <p id="user-email">email@codesync.dev</p>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-danger">Log Out of CodeSync</button>
+      </section>
+
+      <!-- Developer Diagnostics & Statistics Card -->
+      <section class="card">
+        <h2>Developer Diagnostics & Stats</h2>
+        <p class="description">Review synchronization status metrics and debug events for troubleshooting.</p>
+        
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+          <!-- Stats Column -->
+          <div style="background: rgba(0, 0, 0, 0.2); padding: 12px; border-radius: 8px;">
+            <h4 style="margin-bottom: 8px; color: var(--secondary-accent);">Sync Statistics</h4>
+            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
+              <div>Total attempts: <strong id="stats-total">0</strong></div>
+              <div>Successful syncs: <strong id="stats-success" style="color: var(--success-color);">0</strong></div>
+              <div>Failed syncs: <strong id="stats-failed" style="color: var(--danger-color);">0</strong></div>
+            </div>
+          </div>
+          <!-- Logs Info Column -->
+          <div style="background: rgba(0, 0, 0, 0.2); padding: 12px; border-radius: 8px;">
+            <h4 style="margin-bottom: 8px; color: var(--secondary-accent);">Diagnostic Logs</h4>
+            <div style="display: flex; flex-direction: column; gap: 4px; font-size: 13px;">
+              <div>Total log entries: <strong id="log-count">0</strong></div>
+              <div>Last event: <span id="last-event-text" style="color: var(--text-secondary); font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; display: block; max-width: 140px;">None</span></div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 10px; margin-bottom: 12px;">
+          <button id="view-logs-btn" class="btn btn-secondary flex-grow">View Logs</button>
+          <button id="clear-logs-btn" class="btn btn-danger">Clear Logs</button>
+        </div>
+
+        <!-- Logs Viewer (Collapsible) -->
+        <div id="logs-viewer-box" class="hidden" style="background: rgba(0,0,0,0.3); border: 1px solid var(--border-color); border-radius: 8px; padding: 10px; max-height: 250px; overflow-y: auto; font-family: monospace; font-size: 11px;">
+          <div id="logs-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+        </div>
+      </section>
+
+      <!-- Dynamic notification center -->
+      <div id="status-msg" class="status-msg hidden"></div>
+    </main>
+  </div>
+
+  <script type="module" src="options.js"></script>
+</body>
+</html>
