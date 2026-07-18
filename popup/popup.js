@@ -20,6 +20,7 @@ const repoSelect = document.getElementById("repo-select");
 const settingsBtn = document.getElementById("settings-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const statusMsg = document.getElementById("status-msg");
+const autoSyncCheckbox = document.getElementById("auto-sync-checkbox");
 
 // Offline Banner
 const offlineBanner = document.getElementById("offline-banner");
@@ -95,6 +96,13 @@ function setupDevModeVisibility() {
  */
 async function initPopupState() {
   showStatus("", "");
+  
+  // Load auto-sync preference
+  const autoSync = await StorageClient.getAutoSync();
+  if (autoSyncCheckbox) {
+    autoSyncCheckbox.checked = autoSync;
+  }
+
   const token = await StorageClient.getToken();
   
   if (!token) {
@@ -373,9 +381,20 @@ function setupEventListeners() {
   retryPendingBtn.addEventListener("click", handleRetryPending);
   clearPendingBtn.addEventListener("click", handleClearPending);
 
+  // Auto-sync setting change handler
+  if (autoSyncCheckbox) {
+    autoSyncCheckbox.addEventListener("change", async (event) => {
+      await StorageClient.setAutoSync(event.target.checked);
+      showStatus("Auto-Sync preferences updated.", "success");
+    });
+  }
+
   // Task 12 requirement: Subscribe to storage updates to update popup in real-time
   chrome.storage.onChanged.addListener(async (changes, namespace) => {
     if (namespace === "local") {
+      if (changes.auto_sync && autoSyncCheckbox) {
+        autoSyncCheckbox.checked = changes.auto_sync.newValue !== false;
+      }
       if (changes.current_problem) {
         console.log("[Popup] Active problem changed in storage, re-rendering.");
         await renderActiveProblem();

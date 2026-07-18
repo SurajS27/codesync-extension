@@ -12,6 +12,7 @@ const userName = document.getElementById("user-name");
 const userEmail = document.getElementById("user-email");
 const logoutBtn = document.getElementById("logout-btn");
 const statusMsg = document.getElementById("status-msg");
+const autoSyncCheckbox = document.getElementById("auto-sync-checkbox");
 
 // Diagnostics DOM Elements
 const statsTotal = document.getElementById("stats-total");
@@ -37,6 +38,10 @@ async function initOptionsState() {
   // Load saved API base URL
   const baseUrl = await StorageClient.getApiBaseUrl();
   apiUrlInput.value = baseUrl;
+
+  // Load auto sync preference
+  const autoSync = await StorageClient.getAutoSync();
+  autoSyncCheckbox.checked = autoSync;
 
   const token = await StorageClient.getToken();
   if (!token) {
@@ -142,6 +147,12 @@ function setupEventListeners() {
       await StorageClient.setSelectedRepositoryId(selectedId);
       showToast("Active repository preference updated.", "success");
     }
+  });
+
+  // Save auto sync toggle change
+  autoSyncCheckbox.addEventListener("change", async (event) => {
+    await StorageClient.setAutoSync(event.target.checked);
+    showToast("Auto-Sync preferences updated.", "success");
   });
 
   // Log Out handler

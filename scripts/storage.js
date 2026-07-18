@@ -90,6 +90,29 @@ export const StorageClient = {
   },
 
   /**
+   * Check if Auto-Sync is enabled (defaults to true).
+   * @returns {Promise<boolean>}
+   */
+  getAutoSync() {
+    return new Promise((resolve) => {
+      chrome.storage.local.get(["auto_sync"], (result) => {
+        resolve(result.auto_sync !== false);
+      });
+    });
+  },
+
+  /**
+   * Set the Auto-Sync state.
+   * @param {boolean} value
+   * @returns {Promise<void>}
+   */
+  setAutoSync(value) {
+    return new Promise((resolve) => {
+      chrome.storage.local.set({ auto_sync: value }, () => resolve());
+    });
+  },
+
+  /**
    * Clears all persisted storage variables (used for logging out).
    * @returns {Promise<void>}
    */

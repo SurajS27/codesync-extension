@@ -1,4 +1,5 @@
 import { Logger } from "../scripts/logger.js";
+import { APIClient } from "../scripts/api.js";
 
 /**
  * CodeSync Background Service Worker
@@ -174,6 +175,60 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
         chrome.storage.local.set(payloadToStore, () => {
           console.log(`[Background] Stored/Updated latest submission ID ${submission.submission_id} for "${submission.problem_title}"`);
           Logger.logInfo("detection", `Submission detected for "${submission.problem_title}" (ID: ${submission.submission_id})`);
+          
+          // Trigger Auto-Sync Check
+          chrome.storage.local.get(["token", "selectedRepositoryId", "auto_sync"], async (settings) => {
+            const token = settings.token;
+            const repoId = settings.selectedRepositoryId;
+            const autoSync = settings.auto_sync !== false; // Default to true if not set
+
+            if (autoSync && token && repoId) {
+              console.log("[Background] Auto-Sync is enabled. Initiating sync...");
+              const syncPayload = {
+                repository_id: repoId,
+                problem_title: submission.problem_title,
+                problem_slug: submission.problem_slug,
+                difficulty: submission.difficulty.toLowerCase(),
+                language: submission.language,
+                source_code: submission.source_code,
+                question_number: submission.question_number,
+                platform: submission.platform || "leetcode"
+              };
+
+              try {
+                const response = await APIClient.syncLeetCodeSubmission(token, syncPayload);
+                console.log("[Background] Auto-Sync successful:", response);
+                await Logger.logInfo("sync", `Auto-Sync successful for "${submission.problem_title}" (SHA: ${response.commit_sha})`);
+
+                const lastSyncResult = {
+                  status: "completed",
+                  repository_id: repoId,
+                  submission_id: submission.submission_id,
+                  source_code: submission.source_code,
+                  commit_sha: response.commit_sha,
+                  github_file_path: response.github_file_path,
+                  commit_url: response.commit_url,
+                  synced_at: new Date().toISOString()
+                };
+                chrome.storage.local.set({ last_sync_result: lastSyncResult });
+              } catch (err) {
+                console.error("[Background] Auto-Sync failed:", err);
+                await Logger.logError("sync", `Auto-Sync failed: ${err.message}`);
+
+                const lastSyncResult = {
+                  status: "failed",
+                  repository_id: repoId,
+                  submission_id: submission.submission_id,
+                  source_code: submission.source_code,
+                  error_message: err.message || "Unknown error",
+                  synced_at: new Date().toISOString()
+                };
+                chrome.storage.local.set({ last_sync_result: lastSyncResult });
+              }
+            } else {
+              console.log("[Background] Auto-Sync skipped: either disabled or missing token/repository settings.");
+            }
+          });
         });
       });
     } else {
