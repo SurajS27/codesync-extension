@@ -181,9 +181,10 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
           Logger.logInfo("detection", `Submission detected for "${submission.problem_title}" (ID: ${submission.submission_id})`);
           
           // Trigger Auto-Sync Check
-          chrome.storage.local.get(["token", "selectedRepositoryId", "auto_sync"], async (settings) => {
+          chrome.storage.local.get(["token", "selectedRepositoryId", "selectedRepositoryName", "auto_sync"], async (settings) => {
             const token = settings.token;
             const repoId = settings.selectedRepositoryId;
+            const repoName = settings.selectedRepositoryName || "Selected Repository";
             const autoSync = settings.auto_sync !== false; // Default to true if not set
 
             if (autoSync && token && repoId) {
@@ -205,27 +206,81 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 await Logger.logInfo("sync", `Auto-Sync successful for "${submission.problem_title}" (SHA: ${response.commit_sha})`);
 
                 const lastSyncResult = {
-                  status: "completed",
+                  status: "success",
+                  problem_title: submission.problem_title,
+                  repository_name: repoName,
                   repository_id: repoId,
                   submission_id: submission.submission_id,
                   source_code: submission.source_code,
                   commit_sha: response.commit_sha,
                   github_file_path: response.github_file_path,
                   commit_url: response.commit_url,
+                  timestamp: Date.now()
+                };
+
+                const latestSyncPayload = {
+                  status: "completed",
+                  repository_id: repoId,
+                  submission_id: submission.submission_id,
+                  commit_sha: response.commit_sha,
+                  github_file_path: response.github_file_path,
+                  commit_url: response.commit_url,
                   synced_at: new Date().toISOString()
                 };
-                chrome.storage.local.set({ last_sync_result: lastSyncResult });
+
+                const lastSyncPayload = {
+                  submission_id: submission.submission_id,
+                  repository_id: repoId,
+                  source_code: submission.source_code,
+                  synced_at: new Date().toISOString()
+                };
+
+                chrome.storage.local.set({ 
+                  last_sync_result: lastSyncResult,
+                  latest_sync: latestSyncPayload,
+                  last_sync: lastSyncPayload
+                });
               } catch (err) {
+                if (err.status === 409) {
+                  console.log("[Background] Auto-Sync: Already Synced (409 Conflict).");
+                  await Logger.logInfo("sync", `Auto-Sync: Already Synced for "${submission.problem_title}"`);
+
+                  const lastSyncResult = {
+                    status: "success",
+                    problem_title: submission.problem_title,
+                    repository_name: repoName,
+                    repository_id: repoId,
+                    submission_id: submission.submission_id,
+                    source_code: submission.source_code,
+                    timestamp: Date.now()
+                  };
+
+                  const lastSyncPayload = {
+                    submission_id: submission.submission_id,
+                    repository_id: repoId,
+                    source_code: submission.source_code,
+                    synced_at: new Date().toISOString()
+                  };
+
+                  chrome.storage.local.set({ 
+                    last_sync_result: lastSyncResult,
+                    last_sync: lastSyncPayload
+                  });
+                  return;
+                }
+
                 console.error("[Background] Auto-Sync failed:", err);
                 await Logger.logError("sync", `Auto-Sync failed: ${err.message}`);
 
                 const lastSyncResult = {
                   status: "failed",
+                  problem_title: submission.problem_title,
+                  repository_name: repoName,
                   repository_id: repoId,
                   submission_id: submission.submission_id,
                   source_code: submission.source_code,
                   error_message: err.message || "Unknown error",
-                  synced_at: new Date().toISOString()
+                  timestamp: Date.now()
                 };
                 chrome.storage.local.set({ last_sync_result: lastSyncResult });
               }

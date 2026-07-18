@@ -113,6 +113,7 @@ async function loadRepositories(token) {
       if (repo.id === savedRepoId) {
         option.selected = true;
         isSavedRepoStillValid = true;
+        chrome.storage.local.set({ selectedRepositoryName: option.text });
       }
       repoSelect.appendChild(option);
     });
@@ -120,6 +121,8 @@ async function loadRepositories(token) {
     if (!isSavedRepoStillValid && repos.length > 0) {
       repoSelect.selectedIndex = 0;
       await StorageClient.setSelectedRepositoryId(repoSelect.value);
+      const selectedName = repoSelect.options[0]?.text || "";
+      await chrome.storage.local.set({ selectedRepositoryName: selectedName });
     }
   } catch (error) {
     console.error("Options failed loading repositories:", error);
@@ -154,8 +157,10 @@ function setupEventListeners() {
   // Save selected repository preference
   repoSelect.addEventListener("change", async (event) => {
     const selectedId = event.target.value;
+    const selectedName = repoSelect.options[repoSelect.selectedIndex]?.text || "";
     if (selectedId) {
       await StorageClient.setSelectedRepositoryId(selectedId);
+      await chrome.storage.local.set({ selectedRepositoryName: selectedName });
       showToast("Active repository preference updated.", "success");
     }
   });

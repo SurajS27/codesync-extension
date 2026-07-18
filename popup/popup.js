@@ -276,6 +276,7 @@ async function loadRepositories(token) {
       if (repo.id === savedRepoId) {
         option.selected = true;
         isSavedRepoStillValid = true;
+        chrome.storage.local.set({ selectedRepositoryName: option.text });
       }
       repoSelect.appendChild(option);
     });
@@ -284,6 +285,8 @@ async function loadRepositories(token) {
     if (!isSavedRepoStillValid && repos.length > 0) {
       repoSelect.selectedIndex = 0;
       await StorageClient.setSelectedRepositoryId(repoSelect.value);
+      const selectedName = repoSelect.options[0]?.text || "";
+      await chrome.storage.local.set({ selectedRepositoryName: selectedName });
     }
   } catch (error) {
     console.error("Failed to load repositories:", error);
@@ -344,8 +347,10 @@ function setupEventListeners() {
   // Repository selection change event
   repoSelect.addEventListener("change", async (event) => {
     const selectedId = event.target.value;
+    const selectedName = repoSelect.options[repoSelect.selectedIndex]?.text || "";
     if (selectedId) {
       await StorageClient.setSelectedRepositoryId(selectedId);
+      await chrome.storage.local.set({ selectedRepositoryName: selectedName });
       showStatus("Repository preference updated.", "success");
       // Update sync button state
       await renderLatestSubmission();
@@ -793,44 +798,48 @@ async function handleSyncClick() {
   } catch (error) {
     console.error("Sync failed:", error);
     const classified = classifyError(error);
-    
-    await updateSyncStats(false);
-    
+    const isConflict = error.status === 409;
+
+    await updateSyncStats(isConflict);
+
     const lastSyncResultPayload = {
-      status: "failed",
+      status: isConflict ? "success" : "failed",
       timestamp: Date.now(),
       problem_title: submission.problem_title,
       repository_name: repoText,
       repository_id: repoId,
       submission_id: submission.submission_id,
-      error_message: classified
+      error_message: isConflict ? null : classified
     };
     await chrome.storage.local.set({ last_sync_result: lastSyncResultPayload });
-    await Logger.logError("sync", `Sync Failure: ${classified}`);
 
-    const isNetworkError = error.status === 503 || (error.message && error.message.includes("Unable to connect"));
-    const isTimeoutError = error.status === 408 || (error.message && error.message.includes("timed out"));
-    const is5xxError = error.status >= 500 && error.status < 600;
-    const shouldQueue = isNetworkError || isTimeoutError || is5xxError;
-
-    if (shouldQueue) {
-      await addRequestToPendingQueue(submission.submission_id, repoId, payload);
-      await renderPendingSyncs();
-    }
-
-    if (error.status === 409) {
-      const now = Date.now();
+    if (isConflict) {
+      await Logger.logInfo("sync", `Sync Success (Conflict): Solution already synced for ${submission.problem_title}`);
+      
       const lastSyncPayload = {
         submission_id: submission.submission_id,
         repository_id: repoId,
         source_code: submission.source_code,
-        synced_at: now
+        synced_at: Date.now()
       };
       await chrome.storage.local.set({ last_sync: lastSyncPayload });
       
       syncBtn.textContent = "Already Synced";
-      showStatus("This submission already exists in the selected repository.", "error");
+      syncBtn.disabled = true;
+      showStatus("This submission already exists in the selected repository.", "success");
     } else {
+      await Logger.logError("sync", `Sync Failure: ${classified}`);
+
+      const isNetworkError = error.status === 503 || (error.message && error.message.includes("Unable to connect"));
+      const isTimeoutError = error.status === 408 || (error.message && error.message.includes("timed out"));
+      const is5xxError = error.status >= 500 && error.status < 600;
+      const shouldQueue = isNetworkError || isTimeoutError || is5xxError;
+
+      if (shouldQueue) {
+        await addRequestToPendingQueue(submission.submission_id, repoId, payload);
+        await renderPendingSyncs();
+      }
+
       syncBtn.textContent = "Sync Failed";
       showStatus(classified, "error");
       syncBtn.disabled = !navigator.onLine;
