@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "CodeSync",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Automatically synchronize your coding challenge solutions to GitHub.",
   "permissions": [
     "storage",
