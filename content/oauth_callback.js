@@ -1,11 +1,20 @@
 (async function() {
   try {
-    const text = document.body.textContent.trim();
-    if (!text.startsWith("{") || !text.endsWith("}")) {
+    let text = document.body.textContent.trim();
+    
+    // Try to get text from raw pre tags if browser formatted it
+    const preEl = document.querySelector("pre");
+    if (preEl) {
+      text = preEl.textContent.trim();
+    }
+
+    // Extract the JSON block matching our access_token response signature
+    const jsonMatch = text.match(/\{\s*"access_token"[\s\S]*\}/);
+    if (!jsonMatch) {
       return; // Not a JSON callback page
     }
     
-    const data = JSON.parse(text);
+    const data = JSON.parse(jsonMatch[0]);
     if (!data.access_token || !data.user) {
       return; // Not our OAuth callback JSON
     }
