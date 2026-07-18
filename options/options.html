@@ -21,7 +21,7 @@
 
     <main class="main-layout">
       <!-- API configuration card -->
-      <section class="card">
+      <section id="connection-settings-card" class="card">
         <h2>Connection Settings</h2>
         <p class="description">Define the target endpoint for the CodeSync Backend API. This is typically configured to your local host for testing.</p>
         
@@ -47,9 +47,15 @@
           </div>
         </div>
 
-        <div class="form-group" style="display: flex; align-items: center; gap: 8px; margin-top: 15px; margin-bottom: 5px;">
-          <input type="checkbox" id="auto-sync-checkbox" style="width: 16px; height: 16px; cursor: pointer; accent-color: var(--primary-accent);">
-          <label for="auto-sync-checkbox" style="margin: 0; cursor: pointer; font-size: 14px; color: var(--text-secondary);">Auto-sync submissions on LeetCode submit</label>
+        <div class="switch-container">
+          <div class="switch-label-group">
+            <span class="switch-title">Auto-Sync Submissions</span>
+            <span class="switch-desc">Commits to GitHub instantly on successful submit</span>
+          </div>
+          <label class="switch">
+            <input type="checkbox" id="auto-sync-checkbox">
+            <span class="slider"></span>
+          </label>
         </div>
       </section>
 

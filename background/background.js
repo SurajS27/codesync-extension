@@ -7,8 +7,11 @@ import { APIClient } from "../scripts/api.js";
  */
 
 chrome.runtime.onInstalled.addListener(async () => {
-  console.log("CodeSync Extension (v0.7.0) successfully installed/reloaded.");
+  console.log("CodeSync Extension successfully installed/reloaded.");
   await Logger.logInfo("startup", "CodeSync Extension successfully installed/reloaded.");
+  // Create version checking alarm (period: 360 mins = 6 hours)
+  chrome.alarms.create("version-check-alarm", { periodInMinutes: 360 });
+  await checkExtensionVersion();
 });
 
 chrome.runtime.onStartup.addListener(async () => {
@@ -20,6 +23,7 @@ chrome.runtime.onStartup.addListener(async () => {
     console.log(`[Background] ${msg}`);
     await Logger.logInfo("sync", msg);
   });
+  await checkExtensionVersion();
 });
 
 // Helper: Checks if a URL represents a supported problem description page
@@ -263,5 +267,49 @@ chrome.storage.onChanged.addListener((changes, namespace) => {
   if (changes.token) {
     const action = changes.token.newValue ? "saved" : "removed";
     console.log(`[Background] Auth token ${action}.`);
+  }
+});
+
+// 4. Version Check & Update Notification Feature
+function isNewerVersion(current, latest) {
+  if (!current || !latest) return false;
+  const currParts = current.split('.').map(Number);
+  const lateParts = latest.split('.').map(Number);
+  for (let i = 0; i < Math.max(currParts.length, lateParts.length); i++) {
+    const curr = currParts[i] || 0;
+    const late = lateParts[i] || 0;
+    if (late > curr) return true;
+    if (curr > late) return false;
+  }
+  return false;
+}
+
+async function checkExtensionVersion() {
+  try {
+    const url = "https://raw.githubusercontent.com/SurajS27/codesync-extension/main/version.json";
+    const response = await fetch(url, { cache: "no-store" });
+    if (!response.ok) throw new Error("Failed to fetch version info");
+    
+    const data = await response.json();
+    const currentVersion = chrome.runtime.getManifest().version;
+    const latestVersion = data.latest_version;
+    const releaseNotes = data.release_notes || "";
+    
+    const updateAvailable = isNewerVersion(currentVersion, latestVersion);
+    
+    await chrome.storage.local.set({
+      updateAvailable,
+      latestVersion,
+      releaseNotes
+    });
+    console.log(`[Background] Version check: Current=${currentVersion}, Latest=${latestVersion}, UpdateAvailable=${updateAvailable}`);
+  } catch (err) {
+    console.warn("[Background] Extension version check failed silently:", err);
+  }
+}
+
+chrome.alarms.onAlarm.addListener(async (alarm) => {
+  if (alarm.name === "version-check-alarm") {
+    await checkExtensionVersion();
   }
 });

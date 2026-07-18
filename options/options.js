@@ -1,7 +1,11 @@
 import { StorageClient } from "../scripts/storage.js";
 import { APIClient } from "../scripts/api.js";
 
+// Developer Mode toggle for advanced settings
+const DEV_MODE = false;
+
 // DOM Elements
+const connectionSettingsCard = document.getElementById("connection-settings-card");
 const apiUrlInput = document.getElementById("api-url-input");
 const saveSettingsBtn = document.getElementById("save-settings-btn");
 const repoCard = document.getElementById("repo-card");
@@ -35,6 +39,13 @@ document.addEventListener("DOMContentLoaded", async () => {
  * Loads current configurations and configures cards based on authentication status.
  */
 async function initOptionsState() {
+  // Show or hide Connection Settings based on Developer Mode
+  if (DEV_MODE) {
+    connectionSettingsCard.classList.remove("hidden");
+  } else {
+    connectionSettingsCard.classList.add("hidden");
+  }
+
   // Load saved API base URL
   const baseUrl = await StorageClient.getApiBaseUrl();
   apiUrlInput.value = baseUrl;

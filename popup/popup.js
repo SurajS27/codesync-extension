@@ -4,7 +4,7 @@ import { APIClient } from "../scripts/api.js";
 import { Logger } from "../scripts/logger.js";
 
 // Toggle Developer Mode manual token entry UI
-const DEV_MODE = true;
+const DEV_MODE = false;
 
 // DOM Elements
 const unauthSection = document.getElementById("unauth-section");
@@ -21,6 +21,12 @@ const settingsBtn = document.getElementById("settings-btn");
 const logoutBtn = document.getElementById("logout-btn");
 const statusMsg = document.getElementById("status-msg");
 const autoSyncCheckbox = document.getElementById("auto-sync-checkbox");
+
+// Update banner elements
+const updateBanner = document.getElementById("update-banner");
+const updateVersion = document.getElementById("update-version");
+const updateNotes = document.getElementById("update-notes");
+const closeUpdateBtn = document.getElementById("close-update-btn");
 
 // Offline Banner
 const offlineBanner = document.getElementById("offline-banner");
@@ -70,6 +76,7 @@ const historyList = document.getElementById("history-list");
 document.addEventListener("DOMContentLoaded", async () => {
   setupDevModeVisibility();
   await initPopupState();
+  await renderUpdateBanner();
   await renderActiveProblem();
   await renderLatestSubmission();
   await renderSyncHistory();
@@ -213,7 +220,7 @@ async function renderLatestSubmission() {
     syncBtn.disabled = true;
   } else {
     submissionStatusText.textContent = "Accepted \u2022 Ready for Sync";
-    syncBtn.textContent = "Ready to Sync";
+    syncBtn.textContent = "Sync Now";
     // Enable only if token, repo, and submission are available
     syncBtn.disabled = !(token && repoId);
   }
@@ -389,9 +396,18 @@ function setupEventListeners() {
     });
   }
 
+  if (closeUpdateBtn) {
+    closeUpdateBtn.addEventListener("click", () => {
+      updateBanner.classList.add("hidden");
+    });
+  }
+
   // Task 12 requirement: Subscribe to storage updates to update popup in real-time
   chrome.storage.onChanged.addListener(async (changes, namespace) => {
     if (namespace === "local") {
+      if (changes.updateAvailable || changes.latestVersion) {
+        await renderUpdateBanner();
+      }
       if (changes.auto_sync && autoSyncCheckbox) {
         autoSyncCheckbox.checked = changes.auto_sync.newValue !== false;
       }
@@ -953,4 +969,19 @@ function showStatus(msg, type) {
   statusMsg.className = `status-msg ${type}`;
   statusMsg.textContent = msg;
   statusMsg.classList.remove("hidden");
+}
+
+/**
+ * Renders the version update banner if an update is available.
+ */
+async function renderUpdateBanner() {
+  chrome.storage.local.get(["updateAvailable", "latestVersion", "releaseNotes"], (result) => {
+    if (result.updateAvailable) {
+      if (updateVersion) updateVersion.textContent = result.latestVersion;
+      if (updateNotes) updateNotes.textContent = result.releaseNotes || "Bug fixes and performance improvements.";
+      if (updateBanner) updateBanner.classList.remove("hidden");
+    } else {
+      if (updateBanner) updateBanner.classList.add("hidden");
+    }
+  });
 }
