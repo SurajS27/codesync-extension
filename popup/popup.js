@@ -216,8 +216,8 @@ async function renderLatestSubmission() {
 
   if (isSynced) {
     submissionStatusText.textContent = "Accepted \u2022 Synced";
-    syncBtn.textContent = "Already Synced";
-    syncBtn.disabled = true;
+    syncBtn.textContent = "Re-sync to GitHub";
+    syncBtn.disabled = !(token && repoId);
   } else {
     submissionStatusText.textContent = "Accepted \u2022 Ready for Sync";
     syncBtn.textContent = "Sync Now";
@@ -795,6 +795,7 @@ async function handleSyncClick() {
     await chrome.storage.local.remove(["sync_history_cache"]);
     await renderSyncHistory();
     await renderLastSyncStatus();
+    await renderLatestSubmission();
   } catch (error) {
     console.error("Sync failed:", error);
     const classified = classifyError(error);
@@ -824,9 +825,10 @@ async function handleSyncClick() {
       };
       await chrome.storage.local.set({ last_sync: lastSyncPayload });
       
-      syncBtn.textContent = "Already Synced";
-      syncBtn.disabled = true;
+      syncBtn.textContent = "Re-sync to GitHub";
+      syncBtn.disabled = !(token && repoId);
       showStatus("This submission already exists in the selected repository.", "success");
+      await renderLatestSubmission();
     } else {
       await Logger.logError("sync", `Sync Failure: ${classified}`);
 
