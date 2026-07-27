@@ -216,8 +216,8 @@ async function renderLatestSubmission() {
 
   if (isSynced) {
     submissionStatusText.textContent = "Accepted \u2022 Synced";
-    syncBtn.textContent = "Re-sync to GitHub";
-    syncBtn.disabled = !(token && repoId);
+    syncBtn.textContent = "Already Synced";
+    syncBtn.disabled = true;
   } else {
     submissionStatusText.textContent = "Accepted \u2022 Ready for Sync";
     syncBtn.textContent = "Sync Now";
@@ -226,7 +226,7 @@ async function renderLatestSubmission() {
   }
 
   // Render Latest Sync Details if applicable
-  if (latestSync && latestSync.status === "completed" && isSynced) {
+  if (latestSync && latestSync.status === "completed") {
     resultSha.textContent = latestSync.commit_sha ? latestSync.commit_sha.substring(0, 7) : "N/A";
     resultPath.textContent = latestSync.github_file_path || "N/A";
     resultTime.textContent = latestSync.synced_at ? new Date(latestSync.synced_at).toLocaleString() : "N/A";
