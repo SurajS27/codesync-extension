@@ -75,6 +75,72 @@ function getLanguage() {
 }
 
 /**
+ * Fetches exact submission details (including full source code) directly from LeetCode GraphQL API.
+ * This guarantees 100% complete source code extraction for any line count without DOM truncation.
+ * @param {string|number} submissionId 
+ * @returns {Promise<{code: string, lang: string|null, runtime: string|null, memory: string|null}|null>}
+ */
+async function fetchSubmissionDetailsFromGraphQL(submissionId) {
+  try {
+    const numericId = parseInt(submissionId, 10);
+    if (isNaN(numericId)) return null;
+
+    const query = `
+      query submissionDetails($submissionId: Int!) {
+        submissionDetails(submissionId: $submissionId) {
+          code
+          runtime
+          memory
+          statusDisplay
+          lang {
+            name
+            verboseName
+          }
+        }
+      }
+    `;
+
+    let csrfToken = "";
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    if (match) {
+      csrfToken = match[1];
+    }
+
+    const headers = {
+      "Content-Type": "application/json"
+    };
+    if (csrfToken) {
+      headers["x-csrftoken"] = csrfToken;
+    }
+
+    const response = await fetch("/graphql", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({
+        query,
+        variables: { submissionId: numericId }
+      })
+    });
+
+    if (!response.ok) return null;
+
+    const json = await response.json();
+    const details = json?.data?.submissionDetails;
+    if (details && details.code) {
+      return {
+        code: details.code,
+        lang: details.lang?.name || details.lang?.verboseName || null,
+        runtime: details.runtime ? `${details.runtime} ms` : null,
+        memory: details.memory ? `${(details.memory / (1024 * 1024)).toFixed(1)} MB` : null
+      };
+    }
+  } catch (e) {
+    console.warn("[CodeSync] Failed to fetch submission details via GraphQL:", e);
+  }
+  return null;
+}
+
+/**
  * Extracts code from the page.
  * Primary: Asks the main-world script which intercepts LeetCode's fetch() submit calls.
  * Fallback: DOM-based code block extraction.
@@ -296,10 +362,25 @@ async function processSubmission() {
 
     // 3. Gather code, language, and performance metrics
     const detectedLanguage = getLanguage();
-    const { code: sourceCode, lang: interceptedLang } = await extractSourceCode(detectedLanguage);
-    // Prefer the language from the fetch-intercepted payload (most accurate)
-    const language = interceptedLang || detectedLanguage;
-    const { runtime, memory } = getMetrics();
+    const { runtime: pageRuntime, memory: pageMemory } = getMetrics();
+
+    // Priority 1: Fetch exact submission details & full source code directly from LeetCode GraphQL API
+    const gqlData = await fetchSubmissionDetailsFromGraphQL(subDetails.id);
+
+    let sourceCode = gqlData?.code || null;
+    let rawLang = gqlData?.lang ? normalizeLanguage(gqlData.lang) : null;
+    let language = rawLang || detectedLanguage;
+    let runtime = gqlData?.runtime || pageRuntime;
+    let memory = gqlData?.memory || pageMemory;
+
+    // Priority 2 Fallback: If GraphQL API failed, extract code via main world / DOM
+    if (!sourceCode) {
+      const fallback = await extractSourceCode(detectedLanguage);
+      sourceCode = fallback.code;
+      if (fallback.lang) {
+        language = normalizeLanguage(fallback.lang) || language;
+      }
+    }
 
     // Prevent duplicate runs on the same submission ID with identical metrics
     if (
