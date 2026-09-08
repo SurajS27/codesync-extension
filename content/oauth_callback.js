@@ -8,8 +8,8 @@
       text = preEl.textContent.trim();
     }
 
-    // Extract the JSON block matching our access_token response signature
-    const jsonMatch = text.match(/\{\s*"access_token"\s*:\s*"[^"]+"[^{}]*\}/);
+    // Extract the full JSON object containing access_token signature
+    const jsonMatch = text.match(/\{\s*"access_token"[\s\S]*"user"[\s\S]*\}/);
     if (!jsonMatch) {
       return; // Not a JSON callback page
     }
