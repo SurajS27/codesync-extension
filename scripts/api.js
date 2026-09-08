@@ -49,10 +49,10 @@ export const APIClient = {
       const response = await fetch(url, options);
       clearTimeout(timerId);
 
-      // Handle 401 Unauthorized automatically by wiping storage
+      // Handle 401 Unauthorized automatically by wiping auth credentials
       if (response.status === 401) {
-        await StorageClient.clearAll();
-        throw new Error("Session expired or unauthorized. Please log in again.");
+        await chrome.storage.local.remove(["token", "user"]);
+        throw new Error("Session expired. Please log in again.");
       }
 
       const text = await response.text();

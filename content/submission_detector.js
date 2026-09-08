@@ -150,7 +150,9 @@ async function extractSourceCode(language) {
   // Method 1: Ask the main-world script (uses fetch intercept or monaco fallback)
   try {
     const result = await new Promise((resolve) => {
+      let timerId = null;
       const listener = (e) => {
+        if (timerId) clearTimeout(timerId);
         document.removeEventListener("CodeSync_Response_Monaco_Code", listener);
         resolve(e.detail);
       };
@@ -159,7 +161,7 @@ async function extractSourceCode(language) {
       document.dispatchEvent(new CustomEvent("CodeSync_Request_Monaco_Code", { detail: { language } }));
       
       // Timeout fallback
-      setTimeout(() => {
+      timerId = setTimeout(() => {
         document.removeEventListener("CodeSync_Response_Monaco_Code", listener);
         resolve(null);
       }, 2000);
@@ -397,7 +399,7 @@ async function processSubmission() {
     console.log("[CodeSync Debug] Extracted payload parts:", {
       sourceCodeLength: sourceCode ? sourceCode.length : 0,
       language: language,
-      interceptedLang: interceptedLang,
+      interceptedLang: language,
       runtime: runtime,
       memory: memory,
       problemMeta: problemMeta
@@ -448,9 +450,13 @@ async function processSubmission() {
   }
 }
 
-// 1. Setup MutationObserver to watch result card states
+// 1. Setup MutationObserver to watch result card states with debouncing
+let debounceTimer = null;
 const submissionObserver = new MutationObserver(() => {
-  processSubmission();
+  if (debounceTimer) clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(() => {
+    processSubmission();
+  }, 500); // 500ms debounce
 });
 
 submissionObserver.observe(document.body, {

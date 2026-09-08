@@ -113,8 +113,12 @@
   }
 
   // 1. MutationObserver to handle SPA DOM transitions
+  let detectDebounceTimer = null;
   const observer = new MutationObserver(() => {
-    runAllChecks();
+    if (detectDebounceTimer) clearTimeout(detectDebounceTimer);
+    detectDebounceTimer = setTimeout(() => {
+      runAllChecks();
+    }, 500);
   });
 
   observer.observe(document.body, {

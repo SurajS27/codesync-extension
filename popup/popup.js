@@ -226,7 +226,7 @@ async function renderLatestSubmission() {
   }
 
   // Render Latest Sync Details if applicable
-  if (latestSync && latestSync.status === "completed") {
+  if (latestSync && (latestSync.status === "completed" || latestSync.status === "success")) {
     resultSha.textContent = latestSync.commit_sha ? latestSync.commit_sha.substring(0, 7) : "N/A";
     resultPath.textContent = latestSync.github_file_path || "N/A";
     resultTime.textContent = latestSync.synced_at ? new Date(latestSync.synced_at).toLocaleString() : "N/A";
@@ -500,7 +500,7 @@ async function renderLastSyncStatus() {
     return;
   }
 
-  if (lastSync.status === "success") {
+  if (lastSync.status === "success" || lastSync.status === "completed") {
     lastSyncState.innerHTML = '<span style="color: var(--success-color)">✓ Last Sync Successful</span>';
     lastSyncBadge.className = "history-status-badge completed";
     lastSyncBadge.textContent = "Success";

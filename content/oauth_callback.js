@@ -9,7 +9,7 @@
     }
 
     // Extract the JSON block matching our access_token response signature
-    const jsonMatch = text.match(/\{\s*"access_token"[\s\S]*\}/);
+    const jsonMatch = text.match(/\{\s*"access_token"\s*:\s*"[^"]+"[^{}]*\}/);
     if (!jsonMatch) {
       return; // Not a JSON callback page
     }

@@ -1,5 +1,6 @@
 import { Logger } from "../scripts/logger.js";
 import { APIClient } from "../scripts/api.js";
+import { VERSION_CHECK_URL } from "../scripts/constants.js";
 
 /**
  * CodeSync Background Service Worker
@@ -10,7 +11,11 @@ chrome.runtime.onInstalled.addListener(async () => {
   console.log("CodeSync Extension successfully installed/reloaded.");
   await Logger.logInfo("startup", "CodeSync Extension successfully installed/reloaded.");
   // Create version checking alarm (period: 360 mins = 6 hours)
-  chrome.alarms.create("version-check-alarm", { periodInMinutes: 360 });
+  chrome.alarms.get("version-check-alarm", (existingAlarm) => {
+    if (!existingAlarm) {
+      chrome.alarms.create("version-check-alarm", { periodInMinutes: 360 });
+    }
+  });
   await checkExtensionVersion();
 });
 
@@ -219,7 +224,7 @@ chrome.runtime.onMessage.addListener((message, sender, sendResponse) => {
                 };
 
                 const latestSyncPayload = {
-                  status: "completed",
+                  status: "success",
                   repository_id: repoId,
                   submission_id: submission.submission_id,
                   commit_sha: response.commit_sha,
@@ -341,7 +346,7 @@ function isNewerVersion(current, latest) {
 
 async function checkExtensionVersion() {
   try {
-    const url = "https://raw.githubusercontent.com/SurajS27/codesync-extension/main/version.json";
+    const url = VERSION_CHECK_URL;
     const response = await fetch(url, { cache: "no-store" });
     if (!response.ok) throw new Error("Failed to fetch version info");
     

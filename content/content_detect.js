@@ -181,8 +181,12 @@ function extractAndNotify() {
 }
 
 // 1. MutationObserver to handle Single Page Application (SPA) DOM state transitions
+let detectDebounceTimer = null;
 const observer = new MutationObserver(() => {
-  extractAndNotify();
+  if (detectDebounceTimer) clearTimeout(detectDebounceTimer);
+  detectDebounceTimer = setTimeout(() => {
+    extractAndNotify();
+  }, 500);
 });
 
 observer.observe(document.body, {

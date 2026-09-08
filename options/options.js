@@ -75,7 +75,7 @@ async function initOptionsState() {
     showAuthenticatedOptions();
   } catch (error) {
     console.error("Options session verification failed:", error);
-    await StorageClient.clearAll();
+    await chrome.storage.local.remove(["token", "user"]);
     hideAuthenticatedOptions();
     showToast("Session expired. Please re-login via the extension popup.", "error");
   }
@@ -214,7 +214,21 @@ function setupEventListeners() {
             else if (log.level === "warning") color = "#f59e0b";
             else if (log.level === "info") color = "var(--success-color)";
             
-            meta.innerHTML = `<span>${new Date(log.timestamp).toLocaleTimeString()} &bull; <strong style="color: ${color};">${log.level.toUpperCase()}</strong> &bull; [${log.tag}]</span>`;
+            const metaSpan = document.createElement("span");
+            const timeStr = new Date(log.timestamp).toLocaleTimeString();
+            const levelUpper = log.level.toUpperCase();
+            
+            const levelStrong = document.createElement("strong");
+            levelStrong.style.color = color;
+            levelStrong.textContent = levelUpper;
+
+            metaSpan.append(document.createTextNode(`${timeStr} \u2022 `), levelStrong);
+            
+            const tagSpan = document.createElement("span");
+            tagSpan.textContent = ` \u2022 [${log.tag}]`;
+            metaSpan.appendChild(tagSpan);
+
+            meta.appendChild(metaSpan);
             
             const msg = document.createElement("div");
             msg.style.wordBreak = "break-all";
