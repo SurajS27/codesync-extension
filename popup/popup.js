@@ -971,16 +971,24 @@ async function renderAnalytics() {
     const stats = await APIClient.fetchAnalytics(token);
     if (!stats) return;
 
+    // Check local storage for real LeetCode GraphQL calendar streak
+    const leetcodeStorage = await chrome.storage.local.get(["leetcode_calendar"]);
+    const leetcodeCalendar = leetcodeStorage.leetcode_calendar;
+    const realLeetCodeStreak = leetcodeCalendar ? leetcodeCalendar.leetcode_streak : (stats.leetcode_streak || stats.current_streak || 0);
+
     // 1. Streak Badges & Today count
     const streakNum = document.getElementById("streak-num");
     const headerStreakCount = document.getElementById("header-streak-count");
     const todayTag = document.getElementById("today-tag");
     const bestBadge = document.getElementById("best-badge");
+    const githubStreakBadge = document.getElementById("github-streak-badge");
 
-    if (streakNum) streakNum.textContent = stats.current_streak || 0;
-    if (headerStreakCount) headerStreakCount.textContent = `${stats.current_streak || 0}d`;
+    if (streakNum) streakNum.textContent = realLeetCodeStreak;
+    if (headerStreakCount) headerStreakCount.textContent = `${realLeetCodeStreak}d`;
     if (todayTag) todayTag.textContent = `+${stats.today_count || 0} today`;
     if (bestBadge) bestBadge.textContent = `Best: ${stats.best_streak || 0} days`;
+    if (githubStreakBadge) githubStreakBadge.textContent = `GitHub: ${stats.github_streak || 0}d streak`;
+
 
     // 2. Weekly 7-day Tracker Dots (Mon-Sun)
     const weekDotsRow = document.getElementById("week-dots-row");

@@ -141,6 +141,81 @@ async function fetchSubmissionDetailsFromGraphQL(submissionId) {
 }
 
 /**
+ * Fetches user profile calendar (streak & active days) directly from LeetCode GraphQL API.
+ */
+async function fetchLeetCodeUserCalendar() {
+  try {
+    // 1. Get user profile username from page global or meta
+    const userQuery = `
+      query userStatus {
+        userStatus {
+          username
+          isSignedIn
+        }
+      }
+    `;
+
+    let csrfToken = "";
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    if (match) csrfToken = match[1];
+
+    const headers = { "Content-Type": "application/json" };
+    if (csrfToken) headers["x-csrftoken"] = csrfToken;
+
+    const userRes = await fetch("/graphql", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ query: userQuery })
+    });
+    if (!userRes.ok) return;
+
+    const userJson = await userRes.json();
+    const username = userJson?.data?.userStatus?.username;
+    if (!username) return;
+
+    // 2. Fetch user calendar and streak
+    const calQuery = `
+      query userProfileCalendar($username: String!) {
+        matchedUser(username: $username) {
+          userCalendar {
+            streak
+            totalActiveDays
+            submissionCalendar
+          }
+        }
+      }
+    `;
+
+    const calRes = await fetch("/graphql", {
+      method: "POST",
+      headers,
+      body: JSON.stringify({ query: calQuery, variables: { username } })
+    });
+    if (!calRes.ok) return;
+
+    const calJson = await calRes.json();
+    const calendar = calJson?.data?.matchedUser?.userCalendar;
+
+    if (calendar) {
+      const streakData = {
+        leetcode_streak: calendar.streak || 0,
+        total_active_days: calendar.totalActiveDays || 0,
+        submission_calendar: calendar.submissionCalendar || "{}",
+        updated_at: Date.now()
+      };
+      await chrome.storage.local.set({ leetcode_calendar: streakData });
+      console.log("[CodeSync] Updated LeetCode official streak in storage:", streakData.leetcode_streak);
+    }
+  } catch (err) {
+    console.warn("[CodeSync] Failed to fetch LeetCode user calendar:", err);
+  }
+}
+
+// Fetch LeetCode calendar on load
+fetchLeetCodeUserCalendar();
+
+
+/**
  * Extracts code from the page.
  * Primary: Asks the main-world script which intercepts LeetCode's fetch() submit calls.
  * Fallback: DOM-based code block extraction.
