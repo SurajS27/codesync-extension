@@ -9,55 +9,53 @@
   <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;500;600&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="popup.css">
 </head>
-<body>
-  <!-- Extension Card Container -->
-  <div class="card-container">
+<body class="bg-[#060911] text-slate-100 antialiased">
+  <!-- Extension Main Card Container -->
+  <div class="card-container relative w-full max-w-[380px] bg-[#090D16] rounded-2xl border border-white/10 overflow-hidden flex flex-col">
     <!-- Chrome Extension Top Floating Bar -->
-    <div class="top-window-bar">
-      <div class="bar-left">
-        <span class="pulse-dot"></span>
-        <span class="bar-title">LeetCode &rarr; GitHub Analytics</span>
+    <div class="top-window-bar bg-[#0b101c] px-3.5 py-2 border-b border-white/[0.06] flex items-center justify-between text-[11px] text-slate-400">
+      <div class="bar-left flex items-center gap-1.5">
+        <span class="pulse-dot w-2 h-2 rounded-full bg-cyan-400 shadow-[0_0_8px_#00e5ff] animate-pulse"></span>
+        <span class="bar-title font-medium text-slate-300">LeetCode &rarr; GitHub Analytics</span>
       </div>
       <div class="bar-right">
-        <span id="header-repo-badge" class="repo-badge">CodeSync</span>
+        <span id="header-repo-badge" class="repo-badge font-mono text-[10px] text-cyan-400/80 bg-cyan-950/40 px-1.5 py-0.5 rounded border border-cyan-500/20">CodeSync</span>
       </div>
     </div>
 
     <!-- Header Bar -->
-    <header class="main-header">
-      <div class="header-logo-group">
-        <div class="logo-box">
-          <svg class="logo-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <header class="main-header px-4 pt-3.5 pb-3 border-b border-white/[0.07] bg-[#0c1220]/90 flex items-center justify-between">
+      <div class="header-logo-group flex items-center gap-2">
+        <div class="logo-box w-7 h-7 rounded-lg bg-[#141C30] flex items-center justify-center border border-white/10 text-cyan-400">
+          <svg class="logo-svg w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
             <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
             <polyline points="22 4 12 14.01 9 11.01"></polyline>
           </svg>
         </div>
-        <div class="logo-meta">
-          <div class="logo-title-row">
-            <span class="logo-title">CodeSync</span>
-          </div>
-          <span class="logo-subtext">
-            <span class="status-green-dot"></span> Live LeetCode Sync
+        <div class="logo-meta flex flex-col">
+          <span class="logo-title font-extrabold text-[14px] tracking-tight bg-gradient-to-r from-white via-slate-100 to-cyan-200 bg-clip-text text-transparent">Coding Analytics</span>
+          <span class="logo-subtext text-[10px] text-slate-400 font-medium tracking-wide flex items-center gap-1">
+            <span class="status-green-dot w-1.5 h-1.5 rounded-full bg-emerald-400 animate-ping"></span> Live LeetCode Sync
           </span>
         </div>
       </div>
 
-      <div class="header-actions-group">
-        <div class="streak-pill">
+      <div class="header-actions-group flex items-center gap-1.5">
+        <div class="streak-pill flex items-center gap-1 px-2 py-0.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-[10px] font-bold">
           <span>🔥</span> <span id="header-streak-count">0d</span>
         </div>
-        <div class="user-pill">
-          <div class="user-avatar-wrap">
-            <img id="user-avatar" class="avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%236366f1'><circle cx='50' cy='50' r='50'/></svg>" alt="User Avatar">
-            <span class="avatar-online-dot"></span>
+        <div class="user-pill flex items-center gap-1.5 bg-[#141C30] px-2 py-1 rounded-lg border border-white/10">
+          <div class="user-avatar-wrap relative w-5 h-5 rounded-full overflow-hidden border border-cyan-400/40">
+            <img id="user-avatar" class="avatar-img w-full h-full object-cover" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%236366f1'><circle cx='50' cy='50' r='50'/></svg>" alt="User Avatar">
+            <span class="avatar-online-dot absolute bottom-0 right-0 w-1.5 h-1.5 bg-emerald-400 rounded-full"></span>
           </div>
-          <span id="user-name" class="user-handle mono-font">@SurajS27</span>
+          <span id="user-name" class="user-handle text-[11px] font-semibold text-slate-200 mono-font">@SurajS27</span>
         </div>
       </div>
     </header>
 
     <!-- Main Content Body -->
-    <main class="main-body">
+    <main class="main-body p-3.5 flex flex-col gap-3 relative">
       <!-- Update Available Banner -->
       <div id="update-banner" class="update-banner hidden">
         <div class="update-header">
@@ -84,110 +82,115 @@
 
       <!-- 1. Unauthenticated Section -->
       <section id="unauth-section" class="section hidden">
-        <div class="hero-card glass-card">
-          <h1>Sync solved problems instantly.</h1>
-          <p>Authenticate with CodeSync to start automatically committing your solutions to GitHub.</p>
+        <div class="hero-card glass-card rounded-xl p-4 text-center flex flex-col gap-2">
+          <h1 class="text-[16px] font-extrabold text-white">Sync solved problems instantly.</h1>
+          <p class="text-[12px] text-slate-400">Authenticate with CodeSync to start automatically committing your solutions to GitHub.</p>
         </div>
 
-        <button id="login-btn" class="btn cyber-gradient-btn">
-          <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor">
+        <button id="login-btn" class="btn cyber-gradient-btn w-full py-2.5 rounded-xl font-bold text-[13px] mt-3">
+          <svg class="btn-icon w-4 h-4 inline-block mr-2" viewBox="0 0 24 24" fill="currentColor">
             <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
           </svg>
           <span>Login with GitHub</span>
         </button>
 
         <!-- Developer Mode Section (Toggleable) -->
-        <div id="dev-section" class="dev-container hidden">
-          <div class="divider"><span>OR DEVELOPMENT JWT</span></div>
-          <div class="form-group">
-            <label for="jwt-input" class="label-muted">Access Token (JWT)</label>
-            <input type="password" id="jwt-input" class="form-control" placeholder="eyJhbGciOiJIUzI1NiIsIn...">
+        <div id="dev-section" class="dev-container hidden mt-3">
+          <div class="divider text-[10px] text-slate-500 text-center mb-2"><span>OR DEVELOPMENT JWT</span></div>
+          <div class="form-group flex flex-col gap-1">
+            <label for="jwt-input" class="label-muted text-[10px] text-slate-400">Access Token (JWT)</label>
+            <input type="password" id="jwt-input" class="form-control bg-[#0b101c] border border-white/10 rounded-lg px-2.5 py-1.5 text-[12px] text-white" placeholder="eyJhbGciOiJIUzI1NiIsIn...">
           </div>
-          <button id="save-jwt-btn" class="btn btn-secondary">Save Dev Token</button>
+          <button id="save-jwt-btn" class="btn btn-secondary w-full mt-2 py-1.5 rounded-lg text-[11px] bg-slate-800 text-slate-200">Save Dev Token</button>
         </div>
       </section>
 
       <!-- 2. Authenticated Section -->
-      <section id="auth-section" class="section hidden">
+      <section id="auth-section" class="section flex flex-col gap-3 hidden">
         <!-- Hidden legacy user email for JS compatibility -->
         <span id="user-email" class="hidden">user@codesync.dev</span>
 
         <!-- Target Repository Selector -->
-        <div class="form-group">
-          <label for="repo-select" class="field-label">Target Repository</label>
+        <div class="form-group flex flex-col gap-1">
+          <label for="repo-select" class="field-label text-[10px] font-semibold text-slate-400 uppercase tracking-wider">Target Repository</label>
           <div class="select-wrapper">
-            <select id="repo-select" class="form-control select-control">
+            <select id="repo-select" class="form-control select-control w-full bg-[#0d1527] border border-white/10 rounded-xl px-3 py-2 text-[12px] text-white font-medium focus:outline-none focus:border-cyan-400/50">
               <option value="" disabled selected>Select a repository...</option>
             </select>
           </div>
         </div>
 
         <!-- Auto-Sync Submissions Switch Container -->
-        <div class="switch-container glass-card">
-          <div class="switch-label-group">
-            <span class="switch-title">Auto-Sync Submissions</span>
-            <span class="switch-desc">Commits to GitHub instantly on submit</span>
+        <div class="switch-container glass-card rounded-xl p-3 border-cyan-500/30 bg-gradient-to-r from-[#0d1527] to-[#121c33] flex items-center justify-between shadow-glow-card">
+          <div class="switch-label-group flex flex-col gap-0.5">
+            <div class="flex items-center gap-2">
+              <span class="switch-title text-[12px] font-bold text-white tracking-wide">Auto-Sync</span>
+              <span class="px-1.5 py-0.5 rounded-full bg-cyan-500/20 border border-cyan-400/40 text-cyan-300 text-[8.5px] font-mono font-bold flex items-center gap-1 shadow-[0_0_8px_rgba(0,229,255,0.3)]">
+                <span class="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse"></span>LIVE
+              </span>
+            </div>
+            <span class="switch-desc text-[9.5px] text-slate-400 font-medium">Automated background commits on submit</span>
           </div>
-          <label class="switch">
-            <input type="checkbox" id="auto-sync-checkbox">
-            <span class="slider"></span>
+          <label class="switch relative inline-flex items-center cursor-pointer select-none">
+            <input type="checkbox" id="auto-sync-checkbox" class="sr-only peer">
+            <div class="w-11 h-6 bg-[#0b101c] peer-focus:outline-none rounded-full border border-white/10 peer-checked:border-cyan-400/60 peer-checked:bg-cyan-950/80 transition-all duration-300 relative">
+              <div class="slider absolute top-[2px] left-[2px] bg-slate-400 peer-checked:bg-cyan-400 rounded-full h-5 w-5 transition-all duration-300 transform peer-checked:translate-x-5 flex items-center justify-center"></div>
+            </div>
           </label>
         </div>
 
-        <!-- 3. Coding Analytics / Streak Hero Card (Google Stitch Design Component) -->
-        <div class="glass-card streak-card">
-          <div class="streak-card-header">
-            <div class="streak-info">
-              <span class="section-tag">LeetCode Streak</span>
-              <div class="streak-val-row">
-                <span id="streak-num" class="streak-num mono-font">0</span>
-                <span class="streak-unit font-bold">Days</span>
-                <span class="fire-emoji">🔥</span>
-                <span id="today-tag" class="today-tag">+0 today</span>
+        <!-- 3. Coding Analytics / Streak Hero Card -->
+        <div class="glass-card streak-card rounded-xl p-3 border-cyan-500/20 bg-gradient-to-b from-[#131d36]/90 to-[#0e162a]/90 relative overflow-hidden shadow-glow-card">
+          <div class="streak-card-header flex items-start justify-between mb-2">
+            <div class="streak-info flex flex-col">
+              <span class="section-tag text-[10px] font-semibold uppercase tracking-wider text-slate-400">LeetCode Streak</span>
+              <div class="streak-val-row flex items-center gap-1.5 mt-0.5">
+                <span id="streak-num" class="streak-num text-[22px] font-extrabold tracking-tight text-white font-mono">0</span>
+                <span class="streak-unit text-[14px] font-bold text-amber-400">Days</span>
+                <span class="fire-emoji text-[14px] animate-bounce">🔥</span>
+                <span id="today-tag" class="today-tag text-[9px] font-mono text-emerald-400 bg-emerald-500/10 border border-emerald-500/20 px-1.5 py-0.2 rounded ml-1">+0 today</span>
               </div>
             </div>
-            <div class="streak-right-info">
-              <span id="github-streak-badge" class="best-badge mono-font">GitHub: 0d streak</span>
-              <span id="best-badge" class="leetcode-subtext">Best: 0 days</span>
+            <div class="streak-right-info text-right flex flex-col gap-0.5">
+              <span id="github-streak-badge" class="best-badge text-[9px] font-mono text-cyan-300 bg-cyan-950/80 border border-cyan-500/30 px-2 py-0.5 rounded-full inline-block">GitHub: 0d streak</span>
+              <span id="best-badge" class="leetcode-subtext text-[9px] text-slate-400 mt-0.5">Best: 0 days</span>
             </div>
           </div>
 
-
           <!-- 7-Day Tracker Dots -->
-          <div class="week-tracker-box">
-            <div class="week-labels mono-font">
+          <div class="week-tracker-box bg-[#0b101c]/80 rounded-lg p-2 border border-white/5">
+            <div class="week-labels font-mono text-[9px] text-slate-400 mb-1.5 px-1 flex justify-between">
               <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
             </div>
-            <div id="week-dots-row" class="week-dots-row">
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
-              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0 Today</span></div>
+            <div id="week-dots-row" class="week-dots-row flex justify-between px-0.5">
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] font-bold">0</div><span class="day-count mono-font text-[8px] text-slate-400">0</span></div>
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] font-bold">0</div><span class="day-count mono-font text-[8px] text-slate-400">0</span></div>
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] font-bold">0</div><span class="day-count mono-font text-[8px] text-slate-400">0</span></div>
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] font-bold">0</div><span class="day-count mono-font text-[8px] text-slate-400">0</span></div>
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] font-bold">0</div><span class="day-count mono-font text-[8px] text-slate-400">0</span></div>
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-[10px] font-bold">0</div><span class="day-count mono-font text-[8px] text-slate-400">0</span></div>
+              <div class="day-dot-col flex flex-col items-center gap-1"><div class="dot-icon w-6 h-6 rounded-md bg-cyan-400 text-[#090D16] text-[10px] font-bold flex items-center justify-center">0</div><span class="day-count mono-font text-[8px] text-cyan-300 font-bold">0 Today</span></div>
             </div>
           </div>
         </div>
 
-
         <!-- 4. Active Problem & Direct Sync Control Card -->
-        <div id="problem-card" class="glass-card card-padding">
-          <div class="card-header-flex">
-            <span id="problem-header-label" class="section-tag">Current Problem</span>
-            <span id="problem-difficulty" class="badge-difficulty hidden">Easy</span>
+        <div id="problem-card" class="glass-card card-padding rounded-xl p-3 border border-white/10 bg-[#0E1424]">
+          <div class="card-header-flex flex justify-between items-center mb-1">
+            <span id="problem-header-label" class="section-tag text-[10px] font-semibold uppercase tracking-wider text-slate-400">Current Problem</span>
+            <span id="problem-difficulty" class="badge-difficulty hidden text-[10px] font-bold px-2 py-0.5 rounded-full">Easy</span>
           </div>
-          <div class="problem-details-box">
+          <div class="problem-details-box flex flex-col gap-2">
             <div class="problem-title-row">
-              <span id="problem-title" class="problem-title-text">No LeetCode problem detected</span>
+              <span id="problem-title" class="problem-title-text text-[13px] font-bold text-white">No LeetCode problem detected</span>
             </div>
-            <div id="sync-status-row" class="sync-status-row hidden">
-              <span class="status-indicator-dot"></span>
+            <div id="sync-status-row" class="sync-status-row hidden flex items-center gap-1.5 text-[11px] text-emerald-400">
+              <span class="status-indicator-dot w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_#34d399]"></span>
               <span id="sync-status-text" class="sync-status-text">Ready for Sync</span>
             </div>
             <!-- Permanent Primary Sync Button -->
-            <button id="sync-btn" class="btn cyber-gradient-btn btn-sync" disabled style="margin-top: 10px;">
-              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+            <button id="sync-btn" class="btn cyber-gradient-btn btn-sync w-full py-2.5 px-4 rounded-xl text-white font-extrabold text-[12.5px] flex items-center justify-center gap-2 shadow-[0_0_18px_rgba(0,229,255,0.4)] cursor-pointer" disabled>
+              <svg class="btn-icon w-4 h-4 text-cyan-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                 <polyline points="23 4 23 10 17 10"></polyline>
                 <polyline points="1 20 1 14 7 14"></polyline>
                 <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
@@ -197,63 +200,57 @@
           </div>
         </div>
 
-
         <!-- 5. Latest Submission Card -->
-        <div id="submission-card" class="glass-card card-padding hidden">
-          <span class="section-tag">Latest Submission</span>
-          <div class="problem-details-box">
-            <div class="problem-title-row">
-              <span id="submission-title" class="problem-title-text">Two Sum</span>
-              <span id="submission-difficulty" class="badge-difficulty easy">Easy</span>
+        <div id="submission-card" class="glass-card card-padding hidden rounded-xl p-3 border border-white/10 bg-[#0E1424]">
+          <span class="section-tag text-[10px] font-semibold uppercase tracking-wider text-slate-400">Latest Submission</span>
+          <div class="problem-details-box flex flex-col gap-2 mt-1">
+            <div class="problem-title-row flex justify-between items-center">
+              <span id="submission-title" class="problem-title-text text-[13px] font-bold text-white">Two Sum</span>
+              <span id="submission-difficulty" class="badge-difficulty easy text-[10px] font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">Easy</span>
             </div>
 
             <!-- Submission Meta Grid -->
-            <div class="submission-meta-grid">
-              <div class="meta-item">
-                <span class="meta-label">Language</span>
-                <span id="submission-lang" class="meta-value mono-font">python</span>
+            <div class="submission-meta-grid grid grid-cols-2 gap-2 p-2 rounded-lg bg-[#0A0E1A] border border-white/5 text-[10px]">
+              <div class="meta-item flex justify-between">
+                <span class="meta-label text-slate-400">Language</span>
+                <span id="submission-lang" class="meta-value mono-font text-slate-200 font-bold">python</span>
               </div>
-              <div class="meta-item">
-                <span class="meta-label">Submission ID</span>
-                <span id="submission-id" class="meta-value mono-font">2044725166</span>
+              <div class="meta-item flex justify-between">
+                <span class="meta-label text-slate-400">Submission ID</span>
+                <span id="submission-id" class="meta-value mono-font text-slate-200">2044725166</span>
               </div>
-              <div class="meta-item">
-                <span class="meta-label">Runtime</span>
-                <span id="submission-runtime" class="meta-value mono-font">1 ms</span>
+              <div class="meta-item flex justify-between">
+                <span class="meta-label text-slate-400">Runtime</span>
+                <span id="submission-runtime" class="meta-value mono-font text-slate-200">1 ms</span>
               </div>
-              <div class="meta-item">
-                <span class="meta-label">Memory</span>
-                <span id="submission-memory" class="meta-value mono-font">8.52 MB</span>
+              <div class="meta-item flex justify-between">
+                <span class="meta-label text-slate-400">Memory</span>
+                <span id="submission-memory" class="meta-value mono-font text-slate-200">8.52 MB</span>
               </div>
             </div>
 
-            <div class="sync-status-row">
-              <span class="status-indicator-dot"></span>
+            <div class="sync-status-row flex items-center gap-1.5 text-[11px] text-emerald-400">
+              <span class="status-indicator-dot w-2 h-2 rounded-full bg-emerald-400"></span>
               <span id="submission-status-text" class="sync-status-text">Accepted &bull; Ready for Sync</span>
             </div>
 
             <!-- Sync Result Area -->
-
-            <div id="sync-result" class="sync-result-box hidden">
-              <div class="result-divider"></div>
-              <div class="result-details">
-                <div class="result-item">
-                  <span class="result-label">Commit SHA</span>
-                  <span id="result-sha" class="result-value mono-font">N/A</span>
+            <div id="sync-result" class="sync-result-box hidden p-2 rounded-lg bg-[#0A0E1A] border border-cyan-500/20 text-[10px] flex flex-col gap-1.5">
+              <div class="result-details flex flex-col gap-1">
+                <div class="result-item flex justify-between">
+                  <span class="result-label text-slate-400">Commit SHA</span>
+                  <span id="result-sha" class="result-value mono-font text-cyan-300">N/A</span>
                 </div>
-                <div class="result-item">
-                  <span class="result-label">File Path</span>
-                  <span id="result-path" class="result-value mono-font">N/A</span>
+                <div class="result-item flex justify-between">
+                  <span class="result-label text-slate-400">File Path</span>
+                  <span id="result-path" class="result-value mono-font text-slate-300 truncate max-w-[200px]">N/A</span>
                 </div>
-                <div class="result-item">
-                  <span class="result-label">Synced At</span>
-                  <span id="result-time" class="result-value mono-font">N/A</span>
+                <div class="result-item flex justify-between">
+                  <span class="result-label text-slate-400">Synced At</span>
+                  <span id="result-time" class="result-value mono-font text-slate-400">N/A</span>
                 </div>
               </div>
-              <a id="result-link" href="#" target="_blank" class="btn btn-secondary btn-github-link hidden">
-                <svg class="btn-icon" viewBox="0 0 24 24" fill="currentColor" width="16" height="16">
-                  <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-                </svg>
+              <a id="result-link" href="#" target="_blank" class="btn btn-secondary btn-github-link hidden py-1 px-2 rounded bg-slate-800 text-cyan-300 text-center text-[10.5px] font-bold">
                 <span>View on GitHub</span>
               </a>
             </div>
@@ -261,29 +258,29 @@
         </div>
 
         <!-- 6. Last Sync Status Card -->
-        <div id="last-sync-box" class="glass-card card-padding">
-          <span class="section-tag">Last Sync Status</span>
-          <div class="problem-details-box">
+        <div id="last-sync-box" class="glass-card card-padding rounded-xl p-3 border border-white/10 bg-[#0E1424]">
+          <span class="section-tag text-[10px] font-semibold uppercase tracking-wider text-slate-400">Last Sync Status</span>
+          <div class="problem-details-box flex flex-col gap-1.5 mt-1">
             <div class="problem-title-row">
-              <span id="last-sync-state" class="problem-title-text">No Previous Sync</span>
+              <span id="last-sync-state" class="problem-title-text text-[12.5px] font-bold text-white">No Previous Sync</span>
             </div>
             <div id="last-sync-details" class="hidden">
-              <div class="submission-meta-grid">
-                <div class="meta-item">
-                  <span class="meta-label">Problem</span>
-                  <span id="last-sync-problem" class="meta-value mono-font">N/A</span>
+              <div class="submission-meta-grid grid grid-cols-2 gap-2 text-[10.5px]">
+                <div class="meta-item flex flex-col">
+                  <span class="meta-label text-slate-400 text-[9px]">Problem</span>
+                  <span id="last-sync-problem" class="meta-value mono-font text-slate-200 font-bold truncate">N/A</span>
                 </div>
-                <div class="meta-item">
-                  <span class="meta-label">Repository</span>
-                  <span id="last-sync-repo" class="meta-value mono-font">N/A</span>
+                <div class="meta-item flex flex-col">
+                  <span class="meta-label text-slate-400 text-[9px]">Repository</span>
+                  <span id="last-sync-repo" class="meta-value mono-font text-slate-200 truncate">N/A</span>
                 </div>
-                <div class="meta-item">
-                  <span class="meta-label">Status</span>
-                  <span id="last-sync-badge" class="history-status-badge">N/A</span>
+                <div class="meta-item flex flex-col">
+                  <span class="meta-label text-slate-400 text-[9px]">Status</span>
+                  <span id="last-sync-badge" class="history-status-badge text-[9.5px] font-bold text-emerald-400">N/A</span>
                 </div>
-                <div class="meta-item">
-                  <span class="meta-label">Timestamp</span>
-                  <span id="last-sync-time" class="meta-value mono-font">N/A</span>
+                <div class="meta-item flex flex-col">
+                  <span class="meta-label text-slate-400 text-[9px]">Timestamp</span>
+                  <span id="last-sync-time" class="meta-value mono-font text-slate-400 text-[9.5px]">N/A</span>
                 </div>
               </div>
             </div>
@@ -291,68 +288,67 @@
         </div>
 
         <!-- 7. Pending Syncs Recovery Card -->
-        <div id="pending-syncs-card" class="glass-card card-padding hidden">
-          <span class="section-tag">Pending Syncs</span>
-          <div class="problem-details-box">
+        <div id="pending-syncs-card" class="glass-card card-padding hidden rounded-xl p-3 border border-amber-500/30 bg-[#0E1424]">
+          <span class="section-tag text-[10px] font-semibold uppercase tracking-wider text-amber-400">Pending Syncs</span>
+          <div class="problem-details-box flex flex-col gap-2 mt-1">
             <div class="problem-title-row">
-              <span class="problem-title-text">Pending Syncs: <span id="pending-count">0</span></span>
+              <span class="problem-title-text text-[12px] font-bold text-white">Pending Syncs: <span id="pending-count" class="text-amber-400">0</span></span>
             </div>
-            <div class="btn-group-row">
-              <button id="retry-pending-btn" class="btn btn-primary btn-sm">Retry Pending Syncs</button>
-              <button id="clear-pending-btn" class="btn btn-danger btn-sm">Clear Queue</button>
+            <div class="btn-group-row flex gap-2">
+              <button id="retry-pending-btn" class="btn btn-primary btn-sm flex-1 py-1 px-2 rounded bg-cyan-600 text-white text-[11px] font-bold">Retry Pending Syncs</button>
+              <button id="clear-pending-btn" class="btn btn-danger btn-sm flex-1 py-1 px-2 rounded bg-rose-600 text-white text-[11px] font-bold">Clear Queue</button>
             </div>
           </div>
         </div>
 
         <!-- 8. Sync Commits Heatmap & Analytics Card (Google Stitch Component) -->
-
-        <div class="glass-card card-padding">
-          <div class="card-header-flex">
-            <div class="icon-title-row">
-              <svg class="icon-cyan" viewBox="0 0 24 24" fill="currentColor">
+        <section class="glass-card rounded-xl p-2.5 flex flex-col gap-2 border border-white/10 bg-[#0E1424]">
+          <div class="card-header-flex flex items-center justify-between">
+            <div class="icon-title-row flex items-center gap-1.5">
+              <svg class="icon-cyan w-3 h-3 text-cyan-400 animate-pulse" viewBox="0 0 24 24" fill="currentColor">
                 <path clip-rule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" fill-rule="evenodd"></path>
               </svg>
-              <span class="section-tag uppercase font-bold">Sync Commits Heatmap</span>
+              <span class="section-tag uppercase font-bold text-[10px] tracking-wider text-slate-300">Sync Commits Heatmap</span>
             </div>
-            <span id="total-commits-badge" class="cyan-badge mono-font">0 Total Commits</span>
+            <span id="total-commits-badge" class="cyan-badge mono-font text-[9px] text-cyan-400 bg-cyan-950/60 px-1.5 py-0.2 rounded border border-cyan-500/20">0 Total Commits</span>
           </div>
 
           <!-- Heatmap Matrix -->
-          <div class="heatmap-matrix-box">
-            <div class="heatmap-days mono-font">
+          <div class="heatmap-matrix-box bg-[#0A0E1A] p-2 rounded-lg border border-white/5 flex items-center justify-between">
+            <div class="heatmap-days mono-font flex flex-col gap-1 text-[8px] text-slate-500 pr-1">
               <span>M</span><span>W</span><span>F</span>
             </div>
-            <div id="heatmap-grid" class="heatmap-grid">
-              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
+            <div id="heatmap-grid" class="heatmap-grid grid grid-cols-5 gap-1.5 flex-1 justify-items-center">
+              <div class="heatmap-col flex flex-col gap-1.5"><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div></div>
+              <div class="heatmap-col flex flex-col gap-1.5"><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div></div>
+              <div class="heatmap-col flex flex-col gap-1.5"><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div></div>
+              <div class="heatmap-col flex flex-col gap-1.5"><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div></div>
+              <div class="heatmap-col flex flex-col gap-1.5"><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div><div class="hm-cell level-0 w-2.5 h-2.5 rounded-sm"></div></div>
             </div>
           </div>
 
           <!-- Quick Sync Analytics Chips -->
-          <div class="analytics-chips-grid">
-            <div class="chip-item">
-              <span class="chip-label">Acceptance</span>
-              <span id="acceptance-rate-chip" class="chip-value emerald mono-font">0.0%</span>
+          <div class="analytics-chips-grid grid grid-cols-3 gap-1.5 pt-0.5">
+            <div class="chip-item bg-[#0b101c]/80 rounded-lg p-1.5 border border-white/5 flex flex-col items-center text-center">
+              <span class="chip-label text-[8.5px] uppercase font-medium text-slate-400">Acceptance</span>
+              <span id="acceptance-rate-chip" class="chip-value emerald mono-font text-[11.5px] font-bold text-emerald-400 mt-0.5">0.0%</span>
             </div>
-            <div class="chip-item">
-              <span class="chip-label">Avg Runtime</span>
-              <span id="avg-runtime-chip" class="chip-value cyan mono-font">0ms</span>
+            <div class="chip-item bg-[#0b101c]/80 rounded-lg p-1.5 border border-white/5 flex flex-col items-center text-center">
+              <span class="chip-label text-[8.5px] uppercase font-medium text-slate-400">Avg Runtime</span>
+              <span id="avg-runtime-chip" class="chip-value cyan mono-font text-[11.5px] font-bold text-cyan-300 mt-0.5">0ms</span>
             </div>
-            <div class="chip-item">
-              <span class="chip-label">Total Code</span>
-              <span id="total-loc-chip" class="chip-value indigo mono-font">0 LOC</span>
+            <div class="chip-item bg-[#0b101c]/80 rounded-lg p-1.5 border border-white/5 flex flex-col items-center text-center">
+              <span class="chip-label text-[8.5px] uppercase font-medium text-slate-400">Total Code</span>
+              <span id="total-loc-chip" class="chip-value indigo mono-font text-[11.5px] font-bold text-indigo-400 mt-0.5">0 LOC</span>
             </div>
           </div>
-        </div>
+        </section>
 
         <!-- 9. Sync History Panel -->
-        <div id="history-card" class="glass-card card-padding hidden">
-          <span class="section-tag">Recent Syncs</span>
-          <div id="history-list" class="history-list-box">
-            <div class="history-empty">No recent synchronizations</div>
+        <div id="history-card" class="glass-card card-padding hidden rounded-xl p-3 border border-white/10 bg-[#0E1424]">
+          <span class="section-tag text-[10px] font-semibold uppercase tracking-wider text-slate-400">Recent Syncs</span>
+          <div id="history-list" class="history-list-box flex flex-col gap-1.5 mt-1.5">
+            <div class="history-empty text-[11.5px] text-slate-400 text-center py-2">No recent synchronizations</div>
           </div>
         </div>
       </section>
@@ -362,26 +358,26 @@
     </main>
 
     <!-- Footer Bar -->
-    <footer class="footer-bar">
-      <div class="footer-left">
-        <span class="status-green-dot"></span>
-        <span class="footer-status">Synced with main</span>
+    <footer class="footer-bar mt-auto px-4 py-2 bg-[#090D18] border-t border-white/[0.06] flex items-center justify-between text-[10px] text-slate-400">
+      <div class="footer-left flex items-center gap-1.5">
+        <span class="status-green-dot w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+        <span class="footer-status text-slate-300 font-medium">Synced with main branch</span>
       </div>
-      <div class="footer-right">
-        <button id="settings-btn" class="footer-action-btn" title="Open Settings">
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <div class="footer-right flex items-center gap-2">
+        <button id="settings-btn" class="footer-action-btn hover:text-cyan-400 transition-colors" title="Open Settings">
+          <svg class="action-icon w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
-        <button id="logout-btn" class="footer-action-btn logout" title="Logout">
-          <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <button id="logout-btn" class="footer-action-btn logout hover:text-rose-400 transition-colors" title="Logout">
+          <svg class="action-icon w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
             <polyline points="16 17 21 12 16 7"></polyline>
             <line x1="21" y1="12" x2="9" y2="12"></line>
           </svg>
         </button>
-        <span class="version-tag mono-font">v0.11.0</span>
+        <span class="version-tag mono-font text-[10px] text-slate-500">v0.11.0</span>
       </div>
     </footer>
   </div>
