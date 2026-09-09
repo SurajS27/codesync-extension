@@ -1012,6 +1012,59 @@ async function renderAnalytics() {
     const leetcodeCalendar = leetcodeStorage.leetcode_calendar;
     const realLeetCodeStreak = leetcodeCalendar ? leetcodeCalendar.leetcode_streak : (stats.leetcode_streak || stats.current_streak || 0);
 
+    // Calculate fallback streak and weekly activity from history entries if backend returned 0
+    let streakValue = realLeetCodeStreak;
+
+    let todayCountVal = stats.today_count || 0;
+    let weeklyAct = stats.weekly_activity;
+
+    if (!streakValue && Array.isArray(historyEntries) && historyEntries.length > 0) {
+      const activeDates = new Set();
+      const dailyCounts = {};
+      const todayStr = new Date().toISOString().split("T")[0];
+
+      historyEntries.forEach(item => {
+        const dtStr = item.created_at || item.updated_at;
+        if (dtStr) {
+          const dStr = new Date(dtStr).toISOString().split("T")[0];
+          activeDates.add(dStr);
+          dailyCounts[dStr] = (dailyCounts[dStr] || 0) + 1;
+        }
+      });
+
+      todayCountVal = dailyCounts[todayStr] || 0;
+
+      // Compute consecutive streak ending today or yesterday
+      let checkD = new Date();
+      let cStr = checkD.toISOString().split("T")[0];
+      if (!activeDates.has(cStr)) {
+        checkD.setDate(checkD.getDate() - 1);
+        cStr = checkD.toISOString().split("T")[0];
+      }
+
+      let streakCount = 0;
+      while (activeDates.has(cStr)) {
+        streakCount++;
+        checkD.setDate(checkD.getDate() - 1);
+        cStr = checkD.toISOString().split("T")[0];
+      }
+      streakValue = streakCount;
+
+      // Compute weekly activity (Mon..Sun)
+      const nowD = new Date();
+      const dayOfWeek = (nowD.getDay() + 6) % 7; // Mon=0..Sun=6
+      const monday = new Date();
+      monday.setDate(nowD.getDate() - dayOfWeek);
+
+      weeklyAct = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(monday);
+        d.setDate(monday.getDate() + i);
+        const k = d.toISOString().split("T")[0];
+        weeklyAct.push(dailyCounts[k] || 0);
+      }
+    }
+
     // 1. Streak Badges & Today count
     const streakNum = document.getElementById("streak-num");
     const headerStreakCount = document.getElementById("header-streak-count");
@@ -1019,20 +1072,19 @@ async function renderAnalytics() {
     const bestBadge = document.getElementById("best-badge");
     const githubStreakBadge = document.getElementById("github-streak-badge");
 
-    if (streakNum) streakNum.textContent = realLeetCodeStreak;
-    if (headerStreakCount) headerStreakCount.textContent = `${realLeetCodeStreak}d`;
-    if (todayTag) todayTag.textContent = `+${stats.today_count || 0} today`;
-    if (bestBadge) bestBadge.textContent = `Best: ${stats.best_streak || 0} days`;
+    if (streakNum) streakNum.textContent = streakValue || 0;
+    if (headerStreakCount) headerStreakCount.textContent = `${streakValue || 0}d`;
+    if (todayTag) todayTag.textContent = `+${todayCountVal} today`;
+    if (bestBadge) bestBadge.textContent = `Best: ${stats.best_streak || streakValue || 0} days`;
     if (githubStreakBadge) githubStreakBadge.textContent = `GitHub: ${stats.github_streak || 0}d streak`;
-
 
     // 2. Weekly 7-day Tracker Dots (Mon-Sun)
     const weekDotsRow = document.getElementById("week-dots-row");
-    if (weekDotsRow && Array.isArray(stats.weekly_activity)) {
+    if (weekDotsRow && Array.isArray(weeklyAct)) {
       const todayIndex = (new Date().getDay() + 6) % 7; // Convert Sun=0 to Mon=0..Sun=6
       weekDotsRow.innerHTML = "";
 
-      stats.weekly_activity.forEach((count, idx) => {
+      weeklyAct.forEach((count, idx) => {
         const colEl = document.createElement("div");
         colEl.className = "day-dot-col";
 
@@ -1078,6 +1130,7 @@ async function renderAnalytics() {
         heatmapGrid.appendChild(colEl);
       });
     }
+
 
     // 4. Analytics Chips
     const totalCommitsBadge = document.getElementById("total-commits-badge");
