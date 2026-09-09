@@ -1067,16 +1067,21 @@ async function renderAnalytics() {
 
     // 1. Streak Badges & Today count
     const streakNum = document.getElementById("streak-num");
+    const streakVal = document.getElementById("streakVal");
     const headerStreakCount = document.getElementById("header-streak-count");
+    const streakHeaderBadge = document.getElementById("streakHeaderBadge");
     const todayTag = document.getElementById("today-tag");
     const bestBadge = document.getElementById("best-badge");
     const githubStreakBadge = document.getElementById("github-streak-badge");
 
     if (streakNum) streakNum.textContent = streakValue || 0;
+    if (streakVal) streakVal.textContent = streakValue || 0;
     if (headerStreakCount) headerStreakCount.textContent = `${streakValue || 0}d`;
+    if (streakHeaderBadge) streakHeaderBadge.textContent = `${streakValue || 0}d`;
     if (todayTag) todayTag.textContent = `+${todayCountVal} today`;
     if (bestBadge) bestBadge.textContent = `Best: ${stats.best_streak || streakValue || 0} days`;
     if (githubStreakBadge) githubStreakBadge.textContent = `GitHub: ${stats.github_streak || 0}d streak`;
+
 
     // 2. Weekly 7-day Tracker Dots (Mon-Sun)
     const weekDotsRow = document.getElementById("week-dots-row");
