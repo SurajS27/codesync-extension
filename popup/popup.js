@@ -1161,6 +1161,16 @@ async function renderAnalytics() {
 }
 
 /**
+ * Formats a Date object to YYYY-MM-DD local date string.
+ */
+function toLocalDateString(d) {
+  const year = d.getFullYear();
+  const month = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+}
+
+/**
  * Builds a 5x5 heatmap level matrix from user history entries when backend data is fresh/empty.
  */
 function buildHeatmapFromHistory(historyEntries) {
@@ -1169,22 +1179,24 @@ function buildHeatmapFromHistory(historyEntries) {
     historyEntries.forEach(item => {
       const dtStr = item.created_at || item.updated_at;
       if (dtStr) {
-        const dStr = new Date(dtStr).toISOString().split("T")[0];
-        dailyCounts[dStr] = (dailyCounts[dStr] || 0) + 1;
+        const dObj = new Date(dtStr);
+        if (!isNaN(dObj.getTime())) {
+          const dStr = toLocalDateString(dObj);
+          dailyCounts[dStr] = (dailyCounts[dStr] || 0) + 1;
+        }
       }
     });
   }
 
   const today = new Date();
   const matrix = [];
-  // 25 days backwards (5 cols x 5 rows)
   let dayPointer = new Date();
   dayPointer.setDate(today.getDate() - 24);
 
   for (let col = 0; col < 5; col++) {
     const colLevels = [];
     for (let row = 0; row < 5; row++) {
-      const dateKey = dayPointer.toISOString().split("T")[0];
+      const dateKey = toLocalDateString(dayPointer);
       const count = dailyCounts[dateKey] || 0;
       let level = 0;
       if (count === 1) level = 1;
@@ -1199,6 +1211,7 @@ function buildHeatmapFromHistory(historyEntries) {
   }
   return matrix;
 }
+
 
 
 function showUnauthenticatedState() {

@@ -878,7 +878,14 @@ input:checked + .slider:before {
   border: 1px solid rgba(0, 229, 255, 0.35);
 }
 
+.hm-cell.level-2 {
+  background-color: rgba(0, 229, 255, 0.55);
+  border: 1px solid rgba(0, 229, 255, 0.75);
+  box-shadow: 0 0 4px rgba(0, 229, 255, 0.4);
+}
+
 .hm-cell.level-3 {
+
   background-color: var(--cyan-glow);
   box-shadow: 0 0 6px var(--cyan-glow);
 }
