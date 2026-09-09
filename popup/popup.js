@@ -146,8 +146,10 @@ async function initPopupState() {
  * Reads the active problem from storage and populates the popup interface.
  */
 async function renderActiveProblem() {
-  const data = await chrome.storage.local.get(["current_problem"]);
+  const data = await chrome.storage.local.get(["current_problem", "token", "selectedRepositoryId"]);
   const current = data.current_problem;
+  const token = data.token;
+  const repoId = data.selectedRepositoryId;
 
   if (!current) {
     problemHeaderLabel.textContent = "Current Problem";
@@ -155,20 +157,42 @@ async function renderActiveProblem() {
     problemDifficulty.className = "badge-difficulty hidden";
     problemDifficulty.textContent = "";
     syncStatusRow.classList.add("hidden");
+    syncBtn.innerHTML = `
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      <span>Open LeetCode to Sync</span>
+    `;
+    syncBtn.disabled = false;
+    syncBtn.onclick = () => chrome.tabs.create({ url: "https://leetcode.com/problemset/all/" });
     return;
   }
 
-  // Task 11 requirement: Show "Last Detected Problem" if the problem exists in storage
-  problemHeaderLabel.textContent = "Last Detected Problem";
+  // Restore normal click handler
+  syncBtn.onclick = null;
+
+  problemHeaderLabel.textContent = "Active LeetCode Problem";
   problemTitle.textContent = current.title;
 
   // Render difficulty badge
-  const diffClass = current.difficulty.toLowerCase(); // easy, medium, hard
+  const diffClass = current.difficulty.toLowerCase();
   problemDifficulty.className = `badge-difficulty ${diffClass}`;
   problemDifficulty.textContent = current.difficulty.charAt(0).toUpperCase() + current.difficulty.slice(1);
   
-  // Show "Ready for Sync" status indicator
   syncStatusRow.classList.remove("hidden");
+
+  // Enable button if user is authenticated and repo is selected
+  syncBtn.disabled = !(token && repoId);
+  syncBtn.innerHTML = `
+    <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+      <polyline points="23 4 23 10 17 10"></polyline>
+      <polyline points="1 20 1 14 7 14"></polyline>
+      <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+    </svg>
+    <span>Sync Current Solution</span>
+  `;
 }
 
 /**
@@ -218,14 +242,21 @@ async function renderLatestSubmission() {
 
   if (isSynced) {
     submissionStatusText.textContent = "Accepted \u2022 Synced";
-    syncBtn.textContent = "Already Synced";
+    syncBtn.innerHTML = `<span>Already Synced</span>`;
     syncBtn.disabled = true;
   } else {
     submissionStatusText.textContent = "Accepted \u2022 Ready for Sync";
-    syncBtn.textContent = "Sync Now";
-    // Enable only if token, repo, and submission are available
+    syncBtn.innerHTML = `
+      <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+        <polyline points="23 4 23 10 17 10"></polyline>
+        <polyline points="1 20 1 14 7 14"></polyline>
+        <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+      </svg>
+      <span>Sync Current Solution</span>
+    `;
     syncBtn.disabled = !(token && repoId);
   }
+
 
   // Render Latest Sync Details if applicable
   if (latestSync && (latestSync.status === "completed" || latestSync.status === "success")) {

@@ -171,20 +171,32 @@
         </div>
 
 
-        <!-- 4. Active Problem Detection Card -->
+        <!-- 4. Active Problem & Direct Sync Control Card -->
         <div id="problem-card" class="glass-card card-padding">
-          <span id="problem-header-label" class="section-tag">Current Problem</span>
+          <div class="card-header-flex">
+            <span id="problem-header-label" class="section-tag">Current Problem</span>
+            <span id="problem-difficulty" class="badge-difficulty hidden">Easy</span>
+          </div>
           <div class="problem-details-box">
             <div class="problem-title-row">
               <span id="problem-title" class="problem-title-text">No LeetCode problem detected</span>
-              <span id="problem-difficulty" class="badge-difficulty hidden">Easy</span>
             </div>
             <div id="sync-status-row" class="sync-status-row hidden">
               <span class="status-indicator-dot"></span>
               <span id="sync-status-text" class="sync-status-text">Ready for Sync</span>
             </div>
+            <!-- Permanent Primary Sync Button -->
+            <button id="sync-btn" class="btn cyber-gradient-btn btn-sync" disabled style="margin-top: 10px;">
+              <svg class="btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <polyline points="1 20 1 14 7 14"></polyline>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"></path>
+              </svg>
+              <span>Sync Current Solution</span>
+            </button>
           </div>
         </div>
+
 
         <!-- 5. Latest Submission Card -->
         <div id="submission-card" class="glass-card card-padding hidden">
@@ -220,10 +232,8 @@
               <span id="submission-status-text" class="sync-status-text">Accepted &bull; Ready for Sync</span>
             </div>
 
-            <!-- Sync Button -->
-            <button id="sync-btn" class="btn cyber-gradient-btn btn-sync" disabled>Sync Now</button>
-
             <!-- Sync Result Area -->
+
             <div id="sync-result" class="sync-result-box hidden">
               <div class="result-divider"></div>
               <div class="result-details">
