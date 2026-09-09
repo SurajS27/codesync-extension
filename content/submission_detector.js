@@ -180,19 +180,35 @@ async function fetchLeetCodeUserCalendar() {
       console.warn("[CodeSync] userStatus query failed:", e);
     }
 
-    // Method B: DOM Fallback (read username from profile link/avatar if signed in)
-    if (!username) {
-      const profileLink = document.querySelector("a[href^='/u/'], a[href^='/profile/']");
-      if (profileLink) {
-        const parts = profileLink.getAttribute("href").split("/").filter(Boolean);
-        if (parts.length >= 2) username = parts[1];
+    // Method C: Direct DOM Scraper for Navbar Streak Counter (e.g., "6 Streaks" tooltip / button text)
+    let domStreak = null;
+    const streakElements = document.querySelectorAll("button, a, div, span");
+    for (const el of streakElements) {
+      const aria = el.getAttribute("aria-label") || "";
+      const txt = el.textContent || "";
+      if (aria.toLowerCase().includes("streak") || txt.toLowerCase().includes("streak")) {
+        const numMatch = txt.match(/(\d+)\s*Streak/i) || aria.match(/(\d+)/);
+        if (numMatch) {
+          domStreak = parseInt(numMatch[1], 10);
+          break;
+        }
       }
+    }
+
+    if (domStreak !== null && !isNaN(domStreak)) {
+      const streakData = {
+        leetcode_streak: domStreak,
+        updated_at: Date.now()
+      };
+      await chrome.storage.local.set({ leetcode_calendar: streakData });
+      console.log("[CodeSync] Scraped DOM navbar streak:", domStreak);
     }
 
     if (!username) {
       console.log("[CodeSync] Could not determine LeetCode username on current page.");
       return;
     }
+
 
     // Fetch user calendar and streak
     const calQuery = `
@@ -560,6 +576,7 @@ const submissionObserver = new MutationObserver(() => {
   if (debounceTimer) clearTimeout(debounceTimer);
   debounceTimer = setTimeout(() => {
     processSubmission();
+    fetchLeetCodeUserCalendar();
   }, 500); // 500ms debounce
 });
 
@@ -570,4 +587,7 @@ submissionObserver.observe(document.body, {
 
 // 2. Initial execution pass
 processSubmission();
+fetchLeetCodeUserCalendar();
+setTimeout(fetchLeetCodeUserCalendar, 1500);
+
 
