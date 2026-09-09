@@ -24,10 +24,11 @@
   "content_scripts": [
     {
       "matches": [
-        "*://leetcode.com/problems/*",
-        "*://*.leetcode.com/problems/*"
+        "*://leetcode.com/*",
+        "*://*.leetcode.com/*"
       ],
       "js": [
+
         "content/platforms/base_platform.js",
         "content/shared/constants.js",
         "content/shared/language_mapper.js",

@@ -145,35 +145,56 @@ async function fetchSubmissionDetailsFromGraphQL(submissionId) {
  */
 async function fetchLeetCodeUserCalendar() {
   try {
-    // 1. Get user profile username from page global or meta
-    const userQuery = `
-      query userStatus {
-        userStatus {
-          username
-          isSignedIn
+    let username = null;
+
+    // Method A: Query LeetCode GraphQL userStatus
+    try {
+      const userQuery = `
+        query userStatus {
+          userStatus {
+            username
+            userSlug
+            isSignedIn
+          }
         }
+      `;
+
+      let csrfToken = "";
+      const match = document.cookie.match(/csrftoken=([^;]+)/);
+      if (match) csrfToken = match[1];
+
+      const headers = { "Content-Type": "application/json" };
+      if (csrfToken) headers["x-csrftoken"] = csrfToken;
+
+      const userRes = await fetch("/graphql", {
+        method: "POST",
+        headers,
+        body: JSON.stringify({ query: userQuery })
+      });
+
+      if (userRes.ok) {
+        const userJson = await userRes.json();
+        username = userJson?.data?.userStatus?.username || userJson?.data?.userStatus?.userSlug;
       }
-    `;
+    } catch (e) {
+      console.warn("[CodeSync] userStatus query failed:", e);
+    }
 
-    let csrfToken = "";
-    const match = document.cookie.match(/csrftoken=([^;]+)/);
-    if (match) csrfToken = match[1];
+    // Method B: DOM Fallback (read username from profile link/avatar if signed in)
+    if (!username) {
+      const profileLink = document.querySelector("a[href^='/u/'], a[href^='/profile/']");
+      if (profileLink) {
+        const parts = profileLink.getAttribute("href").split("/").filter(Boolean);
+        if (parts.length >= 2) username = parts[1];
+      }
+    }
 
-    const headers = { "Content-Type": "application/json" };
-    if (csrfToken) headers["x-csrftoken"] = csrfToken;
+    if (!username) {
+      console.log("[CodeSync] Could not determine LeetCode username on current page.");
+      return;
+    }
 
-    const userRes = await fetch("/graphql", {
-      method: "POST",
-      headers,
-      body: JSON.stringify({ query: userQuery })
-    });
-    if (!userRes.ok) return;
-
-    const userJson = await userRes.json();
-    const username = userJson?.data?.userStatus?.username;
-    if (!username) return;
-
-    // 2. Fetch user calendar and streak
+    // Fetch user calendar and streak
     const calQuery = `
       query userProfileCalendar($username: String!) {
         matchedUser(username: $username) {
@@ -185,6 +206,13 @@ async function fetchLeetCodeUserCalendar() {
         }
       }
     `;
+
+    let csrfToken = "";
+    const match = document.cookie.match(/csrftoken=([^;]+)/);
+    if (match) csrfToken = match[1];
+
+    const headers = { "Content-Type": "application/json" };
+    if (csrfToken) headers["x-csrftoken"] = csrfToken;
 
     const calRes = await fetch("/graphql", {
       method: "POST",
@@ -213,6 +241,7 @@ async function fetchLeetCodeUserCalendar() {
 
 // Fetch LeetCode calendar on load
 fetchLeetCodeUserCalendar();
+
 
 
 /**
