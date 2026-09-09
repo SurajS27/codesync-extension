@@ -167,5 +167,15 @@ export const APIClient = {
    */
   async fetchSyncHistory(token) {
     return await this.request("GET", "/sync/history", token);
+  },
+
+  /**
+   * Fetches user analytics and activity heatmap metrics
+   * @param {string} token 
+   * @returns {Promise<object>}
+   */
+  async fetchAnalytics(token) {
+    return await this.request("GET", "/analytics/stats", token);
   }
 };
+

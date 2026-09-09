@@ -44,7 +44,7 @@
 
       <div class="header-actions-group">
         <div class="streak-pill">
-          <span>🔥</span> <span>47d</span>
+          <span>🔥</span> <span id="header-streak-count">0d</span>
         </div>
         <div class="user-pill">
           <div class="user-avatar-wrap">
@@ -140,14 +140,14 @@
             <div class="streak-info">
               <span class="section-tag">Current Streak</span>
               <div class="streak-val-row">
-                <span class="streak-num mono-font">47</span>
+                <span id="streak-num" class="streak-num mono-font">0</span>
                 <span class="streak-unit font-bold">Days</span>
                 <span class="fire-emoji">🔥</span>
-                <span class="today-tag">+3 today</span>
+                <span id="today-tag" class="today-tag">+0 today</span>
               </div>
             </div>
             <div class="streak-right-info">
-              <span class="best-badge mono-font">Best: 82 days</span>
+              <span id="best-badge" class="best-badge mono-font">Best: 0 days</span>
               <span class="leetcode-subtext">Active on LeetCode</span>
             </div>
           </div>
@@ -157,38 +157,18 @@
             <div class="week-labels mono-font">
               <span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span>
             </div>
-            <div class="week-dots-row">
-              <div class="day-dot-col">
-                <div class="dot-icon checked">✓</div>
-                <span class="day-count mono-font">2</span>
-              </div>
-              <div class="day-dot-col">
-                <div class="dot-icon checked">✓</div>
-                <span class="day-count mono-font">1</span>
-              </div>
-              <div class="day-dot-col">
-                <div class="dot-icon checked">✓</div>
-                <span class="day-count mono-font">3</span>
-              </div>
-              <div class="day-dot-col">
-                <div class="dot-icon checked">✓</div>
-                <span class="day-count mono-font">1</span>
-              </div>
-              <div class="day-dot-col">
-                <div class="dot-icon checked">✓</div>
-                <span class="day-count mono-font">4</span>
-              </div>
-              <div class="day-dot-col">
-                <div class="dot-icon checked">✓</div>
-                <span class="day-count mono-font">2</span>
-              </div>
-              <div class="day-dot-col">
-                <div class="dot-icon today">✓</div>
-                <span class="day-count mono-font today-label">3 Today</span>
-              </div>
+            <div id="week-dots-row" class="week-dots-row">
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0</span></div>
+              <div class="day-dot-col"><div class="dot-icon">0</div><span class="day-count mono-font">0 Today</span></div>
             </div>
           </div>
         </div>
+
 
         <!-- 4. Active Problem Detection Card -->
         <div id="problem-card" class="glass-card card-padding">
@@ -312,6 +292,18 @@
             </div>
           </div>
         </div>
+      <div class="header-actions-group">
+        <div class="streak-pill">
+          <span>🔥</span> <span id="header-streak-count">0d</span>
+        </div>
+        <div class="user-pill">
+          <div class="user-avatar-wrap">
+            <img id="user-avatar" class="avatar-img" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100' fill='%236366f1'><circle cx='50' cy='50' r='50'/></svg>" alt="User Avatar">
+            <span class="avatar-online-dot"></span>
+          </div>
+          <span id="user-name" class="user-handle mono-font">@SurajS27</span>
+        </div>
+      </div>
 
         <!-- 8. Sync Commits Heatmap & Analytics Card (Google Stitch Component) -->
         <div class="glass-card card-padding">
@@ -322,7 +314,7 @@
               </svg>
               <span class="section-tag uppercase font-bold">Sync Commits Heatmap</span>
             </div>
-            <span class="cyan-badge mono-font">584 Total Commits</span>
+            <span id="total-commits-badge" class="cyan-badge mono-font">0 Total Commits</span>
           </div>
 
           <!-- Heatmap Matrix -->
@@ -330,12 +322,12 @@
             <div class="heatmap-days mono-font">
               <span>M</span><span>W</span><span>F</span>
             </div>
-            <div class="heatmap-grid">
-              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-1"></div><div class="hm-cell level-3"></div><div class="hm-cell level-1"></div><div class="hm-cell level-0"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-1"></div><div class="hm-cell level-0"></div><div class="hm-cell level-3"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-1"></div><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-1"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-3"></div><div class="hm-cell level-1"></div><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div></div>
-              <div class="heatmap-col"><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-3"></div><div class="hm-cell level-4"></div></div>
+            <div id="heatmap-grid" class="heatmap-grid">
+              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
+              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
+              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
+              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
+              <div class="heatmap-col"><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div><div class="hm-cell level-0"></div></div>
             </div>
           </div>
 
@@ -343,15 +335,15 @@
           <div class="analytics-chips-grid">
             <div class="chip-item">
               <span class="chip-label">Acceptance</span>
-              <span class="chip-value emerald mono-font">92.4%</span>
+              <span id="acceptance-rate-chip" class="chip-value emerald mono-font">0.0%</span>
             </div>
             <div class="chip-item">
               <span class="chip-label">Avg Runtime</span>
-              <span class="chip-value cyan mono-font">18ms</span>
+              <span id="avg-runtime-chip" class="chip-value cyan mono-font">0ms</span>
             </div>
             <div class="chip-item">
               <span class="chip-label">Total Code</span>
-              <span class="chip-value indigo mono-font">14.2k LOC</span>
+              <span id="total-loc-chip" class="chip-value indigo mono-font">0 LOC</span>
             </div>
           </div>
         </div>

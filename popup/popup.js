@@ -80,12 +80,14 @@ document.addEventListener("DOMContentLoaded", async () => {
   await renderActiveProblem();
   await renderLatestSubmission();
   await renderSyncHistory();
+  await renderAnalytics();
   await renderLastSyncStatus();
   await renderPendingSyncs();
   updateOfflineStatus();
   setupEventListeners();
   await Logger.logInfo("startup", "Popup opened and UI initialized.");
 });
+
 
 /**
  * Configure developer mode interface visibility.
@@ -428,10 +430,12 @@ function setupEventListeners() {
         console.log("[Popup] Sync state changed in storage, re-rendering.");
         await renderLatestSubmission();
       }
-      if (changes.sync_history_cache) {
-        console.log("[Popup] Sync history cache changed, re-rendering.");
+      if (changes.sync_history_cache || changes.last_sync_result) {
+        console.log("[Popup] Sync history or result changed, re-rendering history and analytics.");
         await renderSyncHistory();
+        await renderAnalytics();
       }
+
       if (changes.last_sync_result) {
         console.log("[Popup] Last sync result changed, re-rendering.");
         await renderLastSyncStatus();
@@ -956,7 +960,94 @@ async function renderSyncHistory() {
   historyCard.classList.remove("hidden");
 }
 
+/**
+ * Fetches user analytics stats from backend and dynamically populates streak, weekly tracker, heatmap, and analytics chips.
+ */
+async function renderAnalytics() {
+  const token = await StorageClient.getToken();
+  if (!token) return;
+
+  try {
+    const stats = await APIClient.fetchAnalytics(token);
+    if (!stats) return;
+
+    // 1. Streak Badges & Today count
+    const streakNum = document.getElementById("streak-num");
+    const headerStreakCount = document.getElementById("header-streak-count");
+    const todayTag = document.getElementById("today-tag");
+    const bestBadge = document.getElementById("best-badge");
+
+    if (streakNum) streakNum.textContent = stats.current_streak || 0;
+    if (headerStreakCount) headerStreakCount.textContent = `${stats.current_streak || 0}d`;
+    if (todayTag) todayTag.textContent = `+${stats.today_count || 0} today`;
+    if (bestBadge) bestBadge.textContent = `Best: ${stats.best_streak || 0} days`;
+
+    // 2. Weekly 7-day Tracker Dots (Mon-Sun)
+    const weekDotsRow = document.getElementById("week-dots-row");
+    if (weekDotsRow && Array.isArray(stats.weekly_activity)) {
+      const todayIndex = (new Date().getDay() + 6) % 7; // Convert Sun=0 to Mon=0..Sun=6
+      weekDotsRow.innerHTML = "";
+
+      stats.weekly_activity.forEach((count, idx) => {
+        const colEl = document.createElement("div");
+        colEl.className = "day-dot-col";
+
+        const iconEl = document.createElement("div");
+        const isToday = idx === todayIndex;
+
+        if (count > 0) {
+          iconEl.className = isToday ? "dot-icon today" : "dot-icon checked";
+          iconEl.textContent = "\u2713";
+        } else {
+          iconEl.className = "dot-icon";
+          iconEl.textContent = "0";
+        }
+
+        const countEl = document.createElement("span");
+        countEl.className = isToday ? "day-count mono-font today-label" : "day-count mono-font";
+        countEl.textContent = isToday ? `${count} Today` : `${count}`;
+
+        colEl.appendChild(iconEl);
+        colEl.appendChild(countEl);
+        weekDotsRow.appendChild(colEl);
+      });
+    }
+
+    // 3. Heatmap Grid Matrix (5 Cols x 5 Rows)
+    const heatmapGrid = document.getElementById("heatmap-grid");
+    if (heatmapGrid && Array.isArray(stats.heatmap_matrix)) {
+      heatmapGrid.innerHTML = "";
+      stats.heatmap_matrix.forEach(colLevels => {
+        const colEl = document.createElement("div");
+        colEl.className = "heatmap-col";
+
+        colLevels.forEach(level => {
+          const cellEl = document.createElement("div");
+          cellEl.className = `hm-cell level-${level}`;
+          colEl.appendChild(cellEl);
+        });
+
+        heatmapGrid.appendChild(colEl);
+      });
+    }
+
+    // 4. Analytics Chips
+    const totalCommitsBadge = document.getElementById("total-commits-badge");
+    const acceptanceChip = document.getElementById("acceptance-rate-chip");
+    const runtimeChip = document.getElementById("avg-runtime-chip");
+    const locChip = document.getElementById("total-loc-chip");
+
+    if (totalCommitsBadge) totalCommitsBadge.textContent = `${stats.total_commits || 0} Total Commits`;
+    if (acceptanceChip) acceptanceChip.textContent = `${(stats.acceptance_rate || 0).toFixed(1)}%`;
+    if (runtimeChip) runtimeChip.textContent = `${stats.avg_runtime_ms || 0}ms`;
+    if (locChip) locChip.textContent = `${stats.total_loc || 0} LOC`;
+  } catch (error) {
+    console.warn("Failed to load user analytics:", error);
+  }
+}
+
 function showUnauthenticatedState() {
+
   unauthSection.classList.remove("hidden");
   authSection.classList.add("hidden");
 }
